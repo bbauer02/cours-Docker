@@ -5,7 +5,7 @@ guides dans leur mise en pratique.
 
 === 13.1 Serveur HTTP avec Docker
 
-image:../images/image76.png[image]
+image:../images/image76.png[]
 
 Nous allons vous guider à chaque étape de la mise en place d’un serveur
 *WEB APACHE* sous *DOCKER*.
@@ -33,13 +33,13 @@ La force de Docker est de posséder une sorte de « *AppStore* », un «
 non officielles utilisables. Recherchons donc une image correspondant à
 notre besoin : https://hub.docker.com/[Docker Hub]
 
-image:../images/image77.png[image]
+image:../images/image77.png[]
 
 Examinons les distributions *Linux* qui accompagnent *Apache* en
 cliquant dessus. Nous constatons qu'*Alpine* est la distribution par
 défaut. C'est un bon choix, car c’est une distribution *Linux Légère*.
 
-image:../images/image78.png[image]
+image:../images/image78.png[]
 
 En parcourant la page dédiée de l'image
 https://hub.docker.com/_/httpd[Apache] nous trouvons le sous-titre «
@@ -79,12 +79,12 @@ Au final, la commande pour installer et lancer notre container sera :
 docker container run -d --name serveur_http -v $PWD/Documents/docker/td/www/esport:/usr/local/apache2/htdocs -p 2000:80 httpd
 ----
 
-image:../images/image79.png[image]
+image:../images/image79.png[]
 
 Pour tester, ouvrez votre navigateur et saisissez l’adresse :
 http://localhost:2000/
 
-image:../images/image80.png[image]
+image:../images/image80.png[]
 
 Nous allons ouvrir un *shell* dans le container pour consulter le
 contenu du dossier : `/usr/local/apache2/htdocs`
@@ -114,7 +114,7 @@ et listons les fichiers le contenant :
 ls
 ----
 
-image:../images/image81.png[image]
+image:../images/image81.png[]
 
 Nous voyons que le dossier *HTDOCS* de notre container contient les
 fichiers de notre application provenant de notre dossier *esport*.
@@ -130,7 +130,7 @@ navigateur :
 <h4 class="text-white landing-title">mode dev</h4>
 ----
 
-image:../images/image82.png[image]
+image:../images/image82.png[]
 
 [NOTE]
 .Note
@@ -189,7 +189,7 @@ La plupart des certificats ont pour extension `.pem`, `.cer`, `.crt`,
 garder le fichier `*.pem` (PRIVACY ENHANCED MAIL) ou `*.CER` (extension
 pour les certificats SSL) pour établir une connexion sécurisée.
 
-image:../images/image83.png[image]
+image:../images/image83.png[]
 
 L’algorithme RSA (_Rivest Shamir Adleman_) est utilisé pour crypter et
 décrypter les messages dans une communication où une clé est gardée
@@ -309,7 +309,7 @@ Ajoutez la ligne suivante :
 
 Puis modifiez les paramètres du proxy comme suit :
 
-image:../images/image91.png[image]
+image:../images/image91.png[]
 
 Ainsi, nous ne passerons pas par le proxy, ni par le DNS pour accéder à
 notre site avec l'url http://necromancers.esport[necromancers.esport] ,
@@ -335,7 +335,7 @@ Modifions maintenant ce nouveau fichier :
 nano /etc/apache2/sites-available/esport.conf
 ----
 
-image:../images/image84.png[image]
+image:../images/image84.png[]
 
 Profitons-en aussi pour modifier le fichier `/etc/apache2/apache2.conf`.
 Et lui rajouter une ligne : `ServerName localhost`. Cela va permettre de
@@ -395,7 +395,7 @@ Editons ce fichier :
 nano /etc/apache2/sites-available/esport-ssl.conf
 ----
 
-image:../images/image85.png[image]
+image:../images/image85.png[]
 
 Pour tester notre configuration, il faut executer la commande :
 
@@ -431,11 +431,11 @@ En test l'adresse [.title-ref]#https://necromancers.esport
 <https://necromancers.esport># depuis votre navigateur, Vous devriez
 avoir cela :
 
-image:../images/image86.png[image]
+image:../images/image86.png[]
 
 Il faut autoriser la connexion au site :
 
-image:../images/image87.png[image]
+image:../images/image87.png[]
 
 [NOTE]
 .Note
@@ -520,7 +520,7 @@ premier temps :
 docker ps -a
 ----
 
-image:../images/image92.png[image]
+image:../images/image92.png[]
 
 `Serveur_https` possède bien l’identifiant : `00e15c9f63ea`
 
@@ -547,12 +547,12 @@ sur notre machine hôte.
 docker images
 ----
 
-image:../images/image95.png[image]
+image:../images/image95.png[]
 
 Nous pouvons retrouver l'image également dans l'application Docker
 Desktop, onglet "Images".
 
-image:../images/image96.png[image]
+image:../images/image96.png[]
 
 Stoppons maintenant notre container `serveur_https` :
 
@@ -594,7 +594,7 @@ service apache2 start
 
 Ouvrez le navigateur et contemplez votre oeuvre :
 
-image:../images/image97.png[image]
+image:../images/image97.png[]
 
 === 13.3 Création d'un Dockerfile
 
@@ -629,7 +629,7 @@ en compte.
 Il va falloir créer un dossier nommé par exemple : `esport_image`, qui
 contiendra :
 
-image:../images/image98.png[image]
+image:../images/image98.png[]
 
 * Notre dossier *esport*, avec dedans les pages html.
 * Nos fichiers *VirtualHost* déjà rédigés qui seront ensuite copiés dans
@@ -859,11 +859,11 @@ N'oubliez pas le "." !
 docker image build -t esport:1.0 .
 ----
 
-image:../images/image99.png[image]
+image:../images/image99.png[]
 
 Notre image apparait bien dans Docker Desktop.
 
-image:../images/image100.png[image]
+image:../images/image100.png[]
 
 Maintenant, montons un container basée sur cette image.
 

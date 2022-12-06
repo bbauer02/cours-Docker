@@ -1,20 +1,28 @@
-== 8.0 Docker Compose
+ifndef::_main_loaded[]
+include::../config/load_attributes.adoc[]
+endif::_main_loaded[]
+//titre de la section
+[[docker_compose]]
+= Docker Compose
+ifndef::_main_loaded[]
+include::../config/header_attributes.adoc[]
+endif::_main_loaded[]
 
-Docker Compose permet de gérer des applications complexes, c'est à dire
+Docker Compose permet de gérer des applications complexes, c'est-à-dire
 par exemple des applications qui dialoguent les unes avec les autres.
-Très simplement nous pouvons utiliser Docker Compose : Grâce à une
-configuration sous forme de fichier [.title-ref]#YAML# dont le nom par
-défaut est [.title-ref]#docker-compose.yml# par défaut.
+Très simplement nous pouvons utiliser** Docker Compose** : Grâce à une
+configuration sous forme de fichier #YAML# dont le nom par
+défaut est `docker-compose.yml` par défaut.
 
-== 8.1 Structure du fichier `docker.compose.yml`
+== Structure du fichier `docker.compose.yml`
 
 Dans ce fichier nous définirons l'ensemble des éléments d'une
-apllication :
+application :
 
 * Les services.
 * Les volumes.
 * Les Networks qui permettent d'isoler les services.
-* Les secrets (données sensibles nécessaires au fonctionnement de
+* Les secrets (donnés sensibles nécessaires au fonctionnement de
 l'application, pris en compte seulement dans un cluster Swarm).
 * Les configs (configuration sensibles nécessaires au fonctionnement de
 l'application, pris en compte seulement dans un cluster Swarm).
@@ -24,14 +32,38 @@ dans le fichier `docker-compose.yml` :
 
 [source,]
 ----
+  version: '3.9'
+  volumes:
+    data:
+  networks:
+    frontend:
+    backend:
+  services:
+    web:
+      images: org/web:2.3
+      networks:
+        - frontend
+      ports:
+        - 80:80
+    api:
+      image: org/api
+      networks:
+        - backend
+        - frontend
+    db:
+      image: mongo
+      volumes:
+        - data:/data/db
+      networks:
+        - backend
 ----
 
 Analysons les principales clées de notre fichier :
 
-* `Version` correspond à la version du format Compose à mettre en
+* `Version` correspond à la version du format *Compose* à mettre en
 relation avec la version du *Docker Daemon* de la machine hôte qui va
-être utilisée pour déployer notre application. Si on utilise la fernière
-version de compose avec un Daemon plus ancien, il y a certaines options
+être utilisée pour déployer notre application. Si on utilise la dernière
+version de *compose* avec un Daemon plus ancien, il y a certaines options
 écrites dans le `docker-compose.yml` qui ne seront pas prises en compte.
 * `Volumes` permet de définir un volume, que l'on appelle ici, *data* et
 qui sera utilisé dans un service par la suite. Par défaut, ce volume
@@ -44,25 +76,22 @@ fonctionnement de notre application. Ici, nous avons nos 3 services :
 `WEB`, `API`, `DB`.
 
 Pour chaque service on spécifie l'image utilisée, les volumes pour la
-persistance des données.Le service `DB` est le seul a persister les
+persistance des données.Le service `DB` est le seul à persister les
 données et montera le volume `data` dans le répertoire `/data/db` du
 container qui sera lancé.
 
 Pour chaque service, on définit aussi les réseaux attachés avec la clé
-`Networks`. Dans notre exemple : le service `API`[.title-ref]#doit
-pouvoir communiquer avec le service #[.title-ref]#WEB#[.title-ref]# et
-#[.title-ref]#DB#[.title-ref]#. Donc il faut lui donner accès aux deux
-réseaux attachés à ces services : #[.title-ref]#backend#[.title-ref]# et
-#[.title-ref]##frontend##`.
+`Networks`. Dans notre exemple : le service `API` doit
+pouvoir communiquer avec le service WEB et
+DB. Donc, il faut lui donner accès aux deux
+réseaux attachés à ces services : `backend` et
+`frontend`.
 
 En isolant ainsi les services, on s'assure qu'ils ne puissent pas avoir
-accès à des services dont ils n'ont pas besoin d'avoir accès
-directement. Comme le service `WEB`, qui ne doit pas pouvoir accès au
-service `DB` directement. Cela ajoute un niveau de sécurité au cas où
-l'un des services serait compromis.
+accès à des services dont ils n'ont pas l'utilité directement. Comme le service `WEB`, qui ne doit pas pouvoir accéder au service `DB` directement. Cela ajoute un niveau de sécurité au cas où l'un des services serait compromis.
 
 La clé `ports` publie les ports nommés vers l'extérieur pour le service
-qui a besoin d'être joins, comme le serveur `Web` et son port 80.
+qui a besoin d'être joint, comme le serveur `Web` et son port 80.
 
 De nombreuses options sont encore disponibles pour la définition d'un
 service dans le format `compose`.
@@ -85,12 +114,12 @@ contenant un disque SSD.
 * Contraintes des mises à jour (dans un contexte de SWARM uniquement).
 
 Un des avantages qu'il y a à déployer une application à travers le
-fichier docker-compose.yml, c'est qu'elle peut être déployer sur
+fichier `docker-compose.yml`, c'est qu'elle peut être déployé sur
 n'importe quel environnement. En utilisant le binaire `compose`, un
 développeur peut installer sur une machine son application, avec son
 environnement de développement complet.
 
-== 8.2 Le binaire `docker-compose`
+== Le binaire `docker-compose`
 
 Le binaire `docker-compose` est utilisé pour gérer une application qui
 est gérée selon le format `docker-compose.yml`. Cet outil est
@@ -104,8 +133,8 @@ docker-compose [-f <arg>...] [options] [COMMAND] [ARGS...]
 
 Il y a plusieurs éléments qui peuvent être fourni au binaire :
 
-* Le chemin d'accès aux fichiers dans lequel est défini l'application. (
-par défault il s'agit du fichier : `docker-compose.yml` du répertoire
+* Le chemin d'accès aux fichiers dans lequel est définie l'application. (
+Par default il s'agit du fichier : `docker-compose.yml` du répertoire
 courant)
 * Des options, comme des chemins d'accès à des certificats et clés TLS
 ou l'adresse de l'hôte à contacter.
@@ -115,7 +144,7 @@ ou l'adresse de l'hôte à contacter.
 On peut avoir plusieurs fichiers pour spécifier une configuration
 différente par environnement de développement.
 
-.title
+
 [width="100%",cols="50%,50%",options="header",]
 |===
 |Commande |Utilisation
@@ -135,14 +164,14 @@ réseaux)
 |ps |Liste les containers de l'application
 |===
 
-== 8.3 Service discovery
+== Service discovery
 
-Une application définie par docker-compose est en général constituée de
-plusieurs services dont certain communique avec d'autres. Nous sommes
-souvent dans un environnement microservice.
+Une application définie par `docker-compose` est en général constituée de
+plusieurs services dont certains communique avec d'autres. Nous sommes
+souvent dans un environnement *microservice*.
 
 Pour permettre la résolution du service, le *dns* intégré dans le
-*docker daemon* est utilisé.Ainsi nous pouvons résoudre l'IP d'un
+*docker daemon* est utilisé. Ainsi nous pouvons résoudre l'IP d'un
 service à partir de son nom.
 
 Voyons un exemple :
@@ -158,24 +187,24 @@ qui utilise ce service `db``.
 Nous voyons aussi qu'il y a un volume qui se nomme `data` et qui est
 monté dans le service `db`.
 
-A droite, nous avons une partie du code *nodeJs* de l'*api* qui montre
+À droite, nous avons une partie du code *nodeJs* de l'*api* qui montre
 comment la connexion à la base de données est réalisée. Il suffit juste
 de donner le nom du service de base de données dans la chaine de
 connexion.
 
 C'est quelque chose de très pratique. Toutefois, il faudra ajouter un
 mécanisme qui permette d'attendre que la `db` soit disponible ou
-éventuellement renouveller la tentative de connexion. `Docker-compose`
-permet d'indiquer les dépendances entre les services mais il ne permet
-pas de savoir qu'un service est disponible avant de lancer un service
+éventuellement renouveler la tentative de connexion.
+
+`Docker-compose` permet d'indiquer les dépendances entre les services, mais il ne permet pas de savoir qu'un service est disponible avant de lancer un service
 qui en dépend.
 
-== 8.4 Mise en oeuvre d'une application microservice : Voting App.
+== Mise en œuvre d'une application microservice : Voting App.
 
 image:../images/image106.png[image]
 
 L'application *Voting App* est développée et maintenue par *Docker*.
-Elle est beaucoup utilisée pour des présentations ou des démos.Nous
+Elle est beaucoup utilisée pour des présentations ou des démos. Nous
 pouvons la récupérer en local en clonant
 https://github.com/dockersamples/example-voting-app[le répository
 GitHub] .
@@ -190,20 +219,20 @@ Elle est composée de :
 ** 3 services développés chacun dans un environnement différent :
 *Python*, *NodeJs* et *.NET*
 
-Un utilise vote depuis l'interface web, par défaut l'utilisateur doit
+Un utilisé `vote` depuis l'interface web, par défaut l'utilisateur doit
 choisir entre "cat" et "dog". Le vote est stocké dans la base de données
 *Redis*.
 
 Le service *Worker*, va récupérer le vote depuis *Redis* et va
-l'enregister dans la base de données *PostGres* et les utilisateurs
+l'enregistrer dans la base de données *PostGres* et les utilisateurs
 pourront consulter les résultats via l'interface *Web* fournie par le
 service *Result*.
 
 Si nous visitons le dépôt *GitHub* de l'application, nous constatons
-qu'il existe plusieurs fichiers *docker-compose* qui illistrent
-différentes utilisation de l'application :
+qu'il existe plusieurs fichiers *docker-compose* qui illustrent
+différente utilisation de l'application :
 
-Pour la production on aura le fichier `docker-stack` alors que pour le
+Pour la production, on aura le fichier `docker-stack` alors que pour le
 développement nous aurons plutôt `docker-compose`. Il est possible de
 choisir différents langages comme `java` ou `.NET` pour le *worker*.
 Ainsi que différents `OS` : *Linux* ou *Windows*.
@@ -214,11 +243,43 @@ Ouvrons le fichier `docker-compose-simple.yml`
 
 [source,]
 ----
+version: "3"
+
+services:
+  vote:
+    build: ./vote
+    command: python app.py
+    volumes:
+    - ./vote:/app
+    ports:
+      - "5000:80"
+
+  redis:
+    image: redis:alpine
+    ports: ["6379"]
+
+  worker:
+    build: ./worker
+
+  db:
+    image: postgres:9.4
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+
+  result:
+    build: ./result
+    command: nodemon server.js
+    volumes:
+      - ./result:/app
+    ports:
+      - "5001:80"
+      - "5858:5858"
 ----
 
 L'instruction `build` sert à définir l'emplacement du contexte de
 construction du service : le `dockerfile` ainsi que les autres fichiers
-nécessaire à la construction de l'image.
+nécessaires à la construction de l'image.
 
 Pour le service *vote*, nous voyons que nous avons bien les fichiers de
 l'application et le `Dockerfile` dans le dossier `vote`.
@@ -239,11 +300,104 @@ On utilise pour cela le mot clé `command` comme nous pouvons le voir
 dans les services *vote* et *result*.
 
 Par contre si nous ouvrons le fichier `docker-stack.yml`, nous avons une
-définition de l'application prête à être déployer sur un cluster *Swarm*
+définition de l'application prête à être déployé sur un cluster *Swarm*
 de production.
 
 [source,]
 ----
+version: "3"
+  services:
+
+    redis:
+      image: redis:alpine
+      networks:
+        - frontend
+      deploy:
+        replicas: 1
+        update_config:
+          parallelism: 2
+          delay: 10s
+        restart_policy:
+          condition: on-failure
+    db:
+      image: postgres:9.4
+      environment:
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "postgres"
+      volumes:
+        - db-data:/var/lib/postgresql/data
+      networks:
+        - backend
+      deploy:
+        placement:
+          constraints: [node.role == manager]
+    vote:
+      image: dockersamples/examplevotingapp_vote:before
+      ports:
+        - 5000:80
+      networks:
+        - frontend
+      depends_on:
+        - redis
+      deploy:
+        replicas: 2
+        update_config:
+          parallelism: 2
+        restart_policy:
+          condition: on-failure
+    result:
+      image: dockersamples/examplevotingapp_result:before
+      ports:
+        - 5001:80
+      networks:
+        - backend
+      depends_on:
+        - db
+      deploy:
+        replicas: 1
+        update_config:
+          parallelism: 2
+          delay: 10s
+        restart_policy:
+          condition: on-failure
+
+    worker:
+      image: dockersamples/examplevotingapp_worker
+      networks:
+        - frontend
+        - backend
+      depends_on:
+        - db
+        - redis
+      deploy:
+        mode: replicated
+        replicas: 1
+        labels: [APP=VOTING]
+        restart_policy:
+          condition: on-failure
+          delay: 10s
+          max_attempts: 3
+          window: 120s
+        placement:
+          constraints: [node.role == manager]
+
+    visualizer:
+      image: dockersamples/visualizer:stable
+      ports:
+        - "8080:8080"
+      stop_grace_period: 1m30s
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      deploy:
+        placement:
+          constraints: [node.role == manager]
+
+  networks:
+    frontend:
+    backend:
+
+  volumes:
+    db-data:
 ----
 
 Si l'on regarde dans le service *vote* par exemple. On peut voir que
@@ -254,23 +408,23 @@ applicatifs dans les containers.
 
 Nous trouvons également l'instruction `deploy` qui permet de spécifier
 un ensemble de propriétés dans le cadre d'un déploiement sur un cluster
-*Swarm* comme le nombre de `replicas`, c'est à dire le nombre de
-container identique qui seront lancés par le service. Des contraintes de
-`placement`, qui indique le type de machine du cluster sur lequel le
-service sera déployé. On peut également spécifier des conditions de
+*Swarm* comme le nombre de `replicas`, c'est-à-dire le nombre de
+container identique qui seront lancés par le service.
+
+Des contraintes de `placement`, qui indique le type de machine du cluster sur lequel le service sera déployé. On peut également spécifier des conditions de
 redémarrage, `restart_policy` ou la façon dont la mise à jour d'un
-service sera effectué avec `update_config`. Par exemple,si un service a
-deux réplicas, on peut vouloir mettre à jour le premier, se donner
+service sera effectuée avec `update_config`. Par exemple, si un service a
+deux replicas, on peut vouloir mettre à jour le premier, se donner
 quelques secondes pour être certain qu'il fonctionne correctement avant
 de faire la mise à jour du second. C'est le mécanisme de *rolling
-update* que l'on verra dans le chapitre sur Swarm.
+update* que l'on verra dans le chapitre sur *Swarm*.
 
 Dans un contexte de production, on s'assurera également d'isoler des
-groupes de services par l'intermédiaire de `networks`. Ici , tout en bas
+groupes de services par l'intermédiaire de `networks`. Ici, tout en bas
 du fichier nous voyons que deux `networks` sont définis : `frontend` et
 `backend`.
 
-== 8.5 Voting App Installation sur `Play Docker`.
+== Voting App Installation sur `Play Docker`.
 
 Nous allons installer l'application dans un environnement temporaire
 dans un premier temps : https://labs.play-with-docker.com/[Play With
@@ -290,6 +444,7 @@ https://github.com/dockersamples/example-voting-app.git
 
 [source,]
 ----
+git clone https://github.com/dockersamples/example-voting-app.git
 ----
 
 image:../images/image111.png[image]
@@ -298,6 +453,7 @@ Naviguez dans le dossier `example-voting-app`.
 
 [source,]
 ----
+cd example-voting-app
 ----
 
 Et lançons maintenant l'application avec `Docker-compose`. Nous lui
@@ -318,8 +474,8 @@ Docker* des boutons portant les numéros des ports des applications.
 Si l'on regarde le contenu du fichier `docker-compose-simple`, nous
 lisons que :
 
-Le service vote publie son port 80 sur le port 5000 de la machine hôte.
-Et que le service result publie son port 80 sur le port 5001 de la
+Le service `vote` publie son port `80` sur le port `5000` de la machine hôte.
+Et que le service `result` publie son port `80` sur le port `5001` de la
 machine hôte.
 
 image:../images/image113.png[image]
@@ -331,11 +487,6 @@ ciblées :
 
 image:../images/image114.png[image]
 
-[verse]
---
-
---
-
 *Résultats des votes :*
 
 image:../images/image115.png[image]
@@ -345,22 +496,24 @@ image:../images/image115.png[image]
 
 --
 
+[NOTE]
+====
 Essayez en local !
 
-Essayez d'installer cette application en local sur votre propre machine
-!
+Essayez d'installer cette application en local sur votre propre machine!
+====
 
-== 8.6 Voting App Installation en `local`.
+== Voting App Installation en `local`.
 
 Nous allons illustrer l’utilisation de `Docker Compose` et lancer
 l’application *Voting App*. Cette application est très utilisée pour des
 présentations et démos, c'est un bon exemple d'application
 micro-services simple.
 
-=== 8.6.1 Vue d’ensemble
+=== Vue d’ensemble
 
 L’application `Voting App` est composée de plusieurs micro-services,
-ceux utilisés pour la version 2 sont les suivants:
+ceux utilisés pour la version 2 sont les suivants :
 
 image:../images/image116.png[image]
 
@@ -374,35 +527,136 @@ options
 résultats dans une database postgres
 * *db*: database postgres dans laquelle sont stockés les résultats
 
-=== 8.6.2 Récupération des repos
+=== Récupération des repos
 
 [source,]
 ----
+mkdir VotingApp && cd VotingApp
+git clone https://gitlab.com/voting-application/$project
 ----
 
-=== 8.6.3 Installation du binaire `docker-compose`
+=== Installation du binaire `docker-compose`
 
 * Si vous utilisez *Docker for Mac* ou *Docker for Windows*, le binaire
 `docker-compose` est déjà installé.
 
-=== 8.6.4 Le format de fichier `docker-compose.yml`
+=== Le format de fichier `docker-compose.yml`
 
-Plusieurs fichiers, au format Docker Compose, sont disponibles dans
-`config/compose`. Ils décrivent l’application pour différents
+Plusieurs fichiers, au format *Docker Compose*, sont disponibles dans
+`config/compose`.
+Ils décrivent l’application pour différents
 environnements. Le fichier qui sera utilisé par défaut est le fichier
 `docker-compose.yml` dont le contenu est le suivant:
 
 [source,]
 ----
+ services:
+  vote:
+    build: ../../vote
+    # use python rather than gunicorn for local dev
+    command: python app.py
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "5002:80"
+    volumes:
+      - ../../vote:/app
+    networks:
+      - front-tier
+      - back-tier
+
+  vote-ui:
+    build: ../../vote-ui
+    depends_on:
+      vote:
+        condition: service_started
+    volumes:
+      - ../../vote-ui:/usr/share/nginx/html
+    ports:
+      - "5000:80"
+    networks:
+      - front-tier
+    restart: unless-stopped
+
+  result:
+    build: ../../result
+    # use nodemon rather than node for local dev
+    command: nodemon server.js
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ../../result:/app
+    ports:
+      - "5858:5858"
+    networks:
+      - front-tier
+      - back-tier
+
+  result-ui:
+    build: ../../result-ui
+    depends_on:
+      result:
+        condition: service_started
+    ports:
+      - "5001:80"
+    networks:
+      - front-tier
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ../../worker
+      dockerfile: Dockerfile.${LANGUAGE:-dotnet}
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - back-tier
+
+  redis:
+    image: redis:6.2-alpine3.13
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: "5s"
+    ports:
+      - 6379:6379
+    networks:
+      - back-tier
+
+  db:
+    image: postgres:13.2-alpine
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: "5s"
+    ports:
+      - 5432:5432
+    networks:
+      - back-tier
+
+volumes:
+  db-data:
+
+networks:
+  front-tier:
+  back-tier:
 ----
 
-Ce fichier est très intéressant car il définit également des `volumes`
+Ce fichier est très intéressant, car il définit également des `volumes`
 et `networks` en plus des *services*. Ce n’est cependant pas un fichier
 destiné à être lancé en production notamment *parce qu'il utilise le
 code local et ne fait pas référence à des images existantes pour les
 services* `vote-ui`, `vote`, `result-ui`, `result` et `worker`.
 
-=== 8.6.5 Lancement de l’application
+=== Lancement de l’application
 
 Depuis le répertoire `config/compose`, lancez l’application à l'aide de
 la commande suivante (le fichier `docker-compose.yml` sera utilisé par
