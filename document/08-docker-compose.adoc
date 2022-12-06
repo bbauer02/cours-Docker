@@ -662,7 +662,11 @@ Depuis le répertoire `config/compose`, lancez l’application à l'aide de
 la commande suivante (le fichier `docker-compose.yml` sera utilisé par
 défaut):
 
+[source, javascript]
+----
 >>> docker-compose up -d
+----
+
 
 Les étapes réalisées lors du lancement de l’application sont les
 suivantes:
@@ -674,22 +678,39 @@ _result-ui_, _result_, _worker_ et récupération des images _redis_ et
 _postgres_
 * lancement des containers pour chaque service
 
-=== 8.6.6 Les containers lancés
+=== Containers lancés
 
 Avec la commande suivante, listez les containers qui ont été lancés.
 
+[source, javascript]
+----
 >>> docker-compose ps
+----
+
 
 [source,]
 ----
+ Name                      Command                  State                            Ports
+----------------------------------------------------------------------------------------------------------------------
+compose_db_1          docker-entrypoint.sh postgres    Up (healthy)   0.0.0.0:5432->5432/tcp,:::5432->5432/tcp
+compose_redis_1       docker-entrypoint.sh redis ...   Up (healthy)   0.0.0.0:6379->6379/tcp,:::6379->6379/tcp
+compose_result-ui_1   /docker-entrypoint.sh ngin ...   Up             0.0.0.0:5001->80/tcp,:::5001->80/tcp
+compose_result_1      docker-entrypoint.sh nodem ...   Up             0.0.0.0:5858->5858/tcp,:::5858->5858/tcp, 80/tcp
+compose_vote-ui_1     /docker-entrypoint.sh ngin ...   Up             0.0.0.0:5000->80/tcp,:::5000->80/tcp
+compose_vote_1        python app.py                    Up             0.0.0.0:5002->80/tcp,:::5002->80/tcp
+compose_worker_1      dotnet Worker.dll                Up
 ----
 
-=== 8.6.7 Les volumes créés
+=== Les volumes créés
 
 Listez les volumes avec la CLI, et vérifiez que le volume défini dans le
 fichier docker-compose.yml est présent.
 
->>> docker volume ls
+[source, javascript]
+----
+docker volume ls
+----
+
 
 Le nom du volume est prefixé par le nom du répertoire dans lequel
 l’application a été lancée.
@@ -703,12 +724,16 @@ local     compose_db-data
 Par défaut ce volume correspond à un répertoire créé sur la machine
 hôte.
 
-=== 8.6.8 Les networks créés
+=== Les networks créés
 
 Listez les networks avec la CLI. Les deux networks définis dans le
 fichier `docker-compose.yml` sont présents.
 
->>> docker network ls
+[source, javascript]
+----
+docker network ls
+----
+
 
 De même que pour le volume, leur nom est préfixé par le nom du
 répertoire.
@@ -723,24 +748,26 @@ b3858656638b   compose_front-tier   bridge    local
 54dee0283ab4   none                 null      local
 ----
 
-Note
-
+[NOTE]
+====
 Comme nous sommes dans le contexte d’un hôte unique (et non dans le
 contexte d’un cluster Swarm), le driver utilisé pour la création de ces
 networks est du type bridge. Il permet la communication entre les
 containers tournant sur une même machine.
+====
 
-=== 8.6.9 Utilisation de l’application
 
-Nous pouvons maintenant accéder à l’application: nous effectuons un
+=== Utilisation de l’application
+
+Nous pouvons maintenant accéder à l’application : nous effectuons un
 choix entre les 2 options depuis l'interface de vote à l'adresse
-http://localhost:5000. Si vous avez lancé cette application sur un autre
+`http://localhost:5000`. Si vous avez lancé cette application sur un autre
 hôte que votre machine, vous aurez accès à cette interface à l'adresse
 http://HOST:5000
 
-image:../images/image117.png[image]
+image:../images/image117.png[]
 
-nous visualisons le résultat depuis l'interface de résultats à l'adresse
+Nous visualisons le résultat depuis l'interface de résultats à l'adresse
 http://localhost:5001 Si vous avez lancé cette application sur un autre
 hôte que votre machine, vous aurez accès à cette interface à l'adresse
 http://HOST:5001
