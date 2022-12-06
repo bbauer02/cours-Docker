@@ -1,0 +1,88 @@
+6.0 Stockage
+###############
+
+Dans ce chapitre nous verrons comment une application peut persister ses données au sein d'un container. 
+
+6.1 Volume
+*********************************************
+
+Si un processus modifie ou créé un fichier , cette modification sera enregistrée dans le layer du container. 
+Pour rappel, cette layer est créé au lancement du container et est en lecture/écriture. 
+Elle est superposée aux layers qui sont en lecture de l'image. 
+
+Quand le container est supprimé, cette layer et tout les fichiers qu'elle contient sont également supprimés.
+
+Donc pour persister des données, il faut les stocker à l'extérieur de la layer du container de manière à ne pas 
+dépendre de son cycle de vie. 
+
+Pour cela il va falloir monter des **volumes** pour persister des données grâce à : 
+
+* L'instruction **VOLUME**  dans le ``Dockerfile``.
+* L'option ``-v`` ou ``--mount`` à la création d'un container.
+* La commande ``docker create volume`` de la CLI.
+
+On utilise la persistance des données dans le cas de l'utilisation d'une base de données par exemple ou des fichiers de log. 
+
+Par exemple, si nous montons une image basée sur MongoDB : 
+
+.. code-block::
+
+    docker container run -d --name mongo mongo:4.0
+
+Et que nous inspectons le container : 
+
+.. code-block::
+
+    docker container inspect -f '{{json .Mounts}}' mongo | python -m json.tool
+
+.. image:: img/docker/image101.png
+    :align: center
+
+Nous voyons que pour chacun des volumes montés, il y a un répertoire qui a été créé sur la machine hôte.
+
+Si l'on supprime le container, tout les fichiers créés dans ce volume persisteront dans la machine hôte.
+
+Nous avons vu comment utiliser l'option ``-v CONTAINER_PATH`` dans les chapitre précédent. Elle permet de créer un lien 
+symbolique entre un dossier de la machine hôte vers un container. 
+
+Le Docker Daemon fournit une API pour manipuler les volumes. Voici les commandes de base : 
+
+.. image:: img/docker/image102.png
+    :align: center
+
+Il est possible de créer, inspecter, lister, supprimer des volumes. 
+Grâce à la commande ``docker volume prune``,  il est possible de supprimer les volumes qui ne sont plus utilisés afin ne libérer de la place sur la machine hôte.
+
+**Créons un volume nommé : db-data** : 
+
+.. code-block::
+
+    docker volume create --name db-data
+
+En listant nos volumes, nous retrouvons ``db-data``, et nous voyons que c'est le driver local de Docker par défaut qui a été utilisé pour la création de ce volume. 
+
+.. image:: img/docker/image103.png
+    :align: center
+
+Lorsque nous consultons la liste des volumes disponibles sur notre machine hôte, nous comprenons facilement pourquoi il est interessant de leur donner un nom.
+Sinon le nom sera généré automatiquement et sera difficilement exploitable.
+
+
+Et si nous inspectons ce volume : 
+
+
+.. code-block::
+
+    docker volume inspect db-data
+
+.. image:: img/docker/image104.png
+    :align: center
+
+Nous constatons que le volume est bien monté, et que son emplacement est autogéré par le driver ``local``.
+
+Maintenant que notre volume est créé. Nous allons pouvoir facilement le monter dans un container grâce à son nom.
+
+.. code-block::
+
+    docker container run -d --name db -v db-data:/data/db mongo
+

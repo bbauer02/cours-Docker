@@ -1,0 +1,79 @@
+
+Liens utiles à lire pour la formation !
+
+* https://docs.asciidoctor.org/asciidoc/latest/directives/include-with-leveloffset/
+
+* https://docs.asciidoctor.org/asciidoc/latest/directives/include-with-indent/[réduire l'indentation du code source inclus]
+
+* https://docs.asciidoctor.org/asciidoc/latest/directives/include-multiple-times-in-same-document/[Utiliser un fichier d'inclusion plusieurs fois (et résoudre les ids qui ne sont plus uniques de fait !)]
+* https://docs.asciidoctor.org/asciidoc/latest/directives/include-tagged-regions/[Inclure le contenu par régions balisées]
+* https://docs.asciidoctor.org/asciidoc/latest/directives/include-lines/[idem mais par plages de lignes]
+* https://docs.asciidoctor.org/asciidoc/latest/directives/include-uri/[inclusion via une URI]
+* https://docs.asciidoctor.org/pdf-converter/latest/background-images/[images de fond]
+* https://docs.asciidoctor.org/pdf-converter/latest/import-pdf-pages/[inclure des pages d'un fichier pdf dans son document]
+* https://docs.asciidoctor.org/pdf-converter/latest/interdocument-xrefs/[références interdocuments]
+* https://docs.asciidoctor.org/asciidoctor/latest/cli/output-file/[spécifier la sortie pour le fichier généré]
+* https://docs.asciidoctor.org/pdf-converter/latest/install/[optimisation du pdf généré]
+* https://docs.asciidoctor.org/pdf-converter/latest/theme/add-running-content/[personnalisé l'entête et le pied de page]
+* https://github.com/asciidoctor/asciidoctor-pdf/blob/main/data/themes/default-theme.yml[le thème par défaut] et aussi https://docs.asciidoctor.org/pdf-converter/latest/theme/apply-theme/[ce lien]
+* https://docs.asciidoctor.org/pdf-converter/latest/asciidoc-attributes/[attributs spécifiques au pdf]
+* https://docs.asciidoctor.org/pdf-converter/latest/optimize-pdf/[optimiser le pdf (autre lien)]
+* https://docs.asciidoctor.org/pdf-converter/latest/theme/custom-role/[personnaliser des rôles] et https://docs.asciidoctor.org/pdf-converter/latest/theme/role/[les clés] qu'il est possible de leur affecter
+* https://docs.asciidoctor.org/asciidoc/latest/blocks/build-basic-block/[liste des différents blocs]
+* https://github.com/asciidoctor/asciidoctor-extensions-lab/issues/9[dicussion sur la création d'un bloc "question"]
+* https://docs.asciidoctor.org/asciidoc/latest/attributes/role/[les attributs de rôle]
+
+
+== Pb rencontrés
+
+* utilisation d'images au format svg : il faut installer un paquet :
+
+----
+❎  asciidoctor: WARNING: could not embed image: T:/SPOT/bloc-2/analyse/ass
+ets/diagram_images/.svg; image file is an unrecognised format; install pra
+wn-gmagick gem to add support for unknown image format
+----
+
+[WARNING]
+====
+Ce message d'erreur peut survenir tout simplement parce qu'aucune valeur de "target" n'a été spécifiée :
+
+----
+[plantuml,target=,format=svg]
+....
+hide circle
+skinparam classAttributeIconSize 0
+
+class Voiture {
+}
+
+....
+
+WARNING: Si jamais un fichier sans nom mais avec l'extension `.svg` traîne dans le projet, la génération du fichier pdf échouera ! +
+Veillez à vérifier cela !
+----
+
+====
+
+
+La solution (à faire dans une console administrateur)
+[source%linenums,shell]
+----
+gem install prawn-gmagick
+----
+
+NOTE: https://github.com/asciidoctor/docker-asciidoctor/issues/121
+
+Après installation, il peut y avoir ce message :
+----
+MSYS2 could not be found. Please run 'ridk install'
+or download and install MSYS2 manually from https://msys2.github.io/
+----
+
+Se rendre au lien indiqué et télécharger le fichier `msys2-x86_64-20220904.exe`
+
+J'ai installé (en tant qu'administrateur) la  version de base (cela prend un certain temps)
+Cela va permettre d'utiliser la console MSYS pour jouer les commandes qui vont traiter les images.
+L'objectif est de pouvoir utiliser des commandes nécessitant des privilèges plus élevés.
+
+

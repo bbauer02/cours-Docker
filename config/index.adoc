@@ -1,0 +1,7 @@
+//Ajout d'un index (forcément à la fin du document sans quoi le document sera tronqué semble-t-il)
+ifeval::[{_show_index} == 1]
+
+[index]
+== Index
+
+endif::[]

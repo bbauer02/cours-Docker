@@ -1,0 +1,170 @@
+// -----------------------------------------------------
+// Fichier contenant tous les attributs utiles à un projet de cours
+// -----------------------------------------------------
+
+// ATTENTION : la valeur d'un attribut doit être séparée de son nom par un espace
+
+//import des attributs personnalisés (si certains attributs personnalisés ont le même nom que les attributs déclarés dans ce fichier, leur valeur sera écrasée.
+include::custom_attributes.adoc[]
+
+// ***************************************************************
+// Attributs de "base" à configurer pour un nouveau projet
+// ***************************************************************
+
+
+//auteur du document (si plusieurs auteurs, séparer par un ; ). Pour ajouter une adresse mail, il faut l'encadrer des caractères < et >
+//:document_author: Emmanuel Ravrat <ieg.prof@gmail.com>
+:_document_author: Baptiste Bauer
+:example-caption: Exemple
+//titre du document
+:_document_title: La plateforme Docker
+//Si le document a des diagrammes, il faut indiquer la valeur 1 afin que le script qui génère le pdf utilise l'outil qui génère les diagrammes
+:_document_with_diagrams: 1
+
+//URL du dépôt distant. Pour gérer l'authentification en HTTPS, il faut utiliser GCM : https://github.com/GitCredentialManager/git-credential-manager. S'il y a plusieurs dépôts, ils doivent être séparés par un point virgule).
+:_git_remote_for_current_adocument: https://github.com/bbauer02/cours-Docker.git
+
+//URL du dépôt ouvert aux étudiants (ne seront publiés que le contenu du dossier shared. Pour gérer l'authentification en HTTPS, il faut utiliser GCM : https://github.com/GitCredentialManager/git-credential-manager. S'il y a plusieurs dépôts, les séparer par un ;
+:_git_remotes_for_students:
+
+//url menant vers le dépôt partagé aux étudiants (pour l'instant, ce n'est pas cohérent avec l'attribut _git_remotes_for_students car ce dernier peut accepter plusieurs valeurs.
+:_url_to_repo_for_students:
+
+//chemin vers l'image de couverture (il faut indiquer un chemin relatif à partir du répertoire "config" jusqu'à l'image)
+//:_cover_image: ../images/bg-document.png
+:_cover_image:
+
+
+// ***************************************************************
+// Attributs affichant / masquant des éléments
+// ***************************************************************
+
+
+//Ces attributs permettent d'afficher ou de masquer des éléments
+// Pour afficher, il faut affecter la valeur 1, pour masquer c'est la valeur 0
+
+//affichage de la correction (si les réponses sont encadrées par le test de la valeur de cet attribut).
+:_show_correction: 1
+
+//affichage de l'index
+:_show_index: 1
+
+//affichage des éléments réservés au professeur (si les réponses sont encadrées par le test de la valeur de cet attribut)
+:_show_note_prof: 1
+
+//affichage des diagrammes réalisés avec PlantUml (si les diagrammes sont encadrées par le test de la valeur de cet attribut)
+:_show_plantuml: 0
+
+//affichage des informations de version en fin de document
+:_show_versions_information: 0
+
+
+// ***************************************************************
+// Attributs pour la configuration du projet
+// ***************************************************************
+
+
+//nom de l'attribut qui doit être créé dans le fichier défini dans :file_cache_version_date:
+:_attribute_name_date_version: _date_version
+
+//nom de l'attribut qui doit être créé dans le fichier défini dans :file_cache_version_number:
+:_attribute_name_number_version: _current_version
+
+//préfixe automatique avant chaque titre de chapitre (ne pas mettre de valeur pour qu'il n'y ait pas de préfixe)
+:_chapter_label:
+
+//numéro de version du document
+:_document_current_version: {{_attribute_name_number_version}}
+
+//date de version du document
+:_document_date_version:  {{_attribute_name_date_version}}
+
+//nom du fichier qui contient la date de version
+:_file_cache_version_date: date_version.adoc
+
+//nom du fichier qui contient les informations de versions qui peuvent être incluses dans le document
+:_file_cache_versions_info: versions_info.adoc
+
+//nom du fichier qui contient le numéro de version
+:_file_cache_version_number: number_version.adoc
+
+//nom du fichier qui contient toutes les inclusions à faire dans le document principal
+:_file_index: 00-content-to-include.adoc
+
+//nom du fichier principal depuis lequel est généré le fichier pdf (il doit être placé dans le répertoire définit par l'attribut :folder_config:)
+:_file_main: main.adoc
+
+//préfixe automatique avant chaque titre de figure (ne pas mettre de valeur pour qu'il n'y ait pas de préfixe. Le numéro de figure sera tout de même rendu.)
+:_figure_label:
+
+//nom du dossier de cache sans slash
+:_folder_cache: cache
+
+//répertoire contenant la configuration du projet
+:_folder_config: config
+
+//répertoire qui va contenir les images des diagrammes (utilisé par l'attribut :imagesoutdir: du gem qui gère le rendu des diagrammes)
+:_folder_diagram_images: assets/diagram_images
+
+//nom du dossier contenant les fichiers qui composent le document (sans slash)
+:_folder_document: document
+
+//nom du dossier du document courant contenant les fichiers pdf générés (attention, si la valeur de cet attribut est modifié, il faut reporter la modification dans le fichier .gitignore car le dossier correspondant n'est pas versionné par défaut pour ne pas alourdir le projet)
+:_folder_release_pdf: assets/shared/cours
+
+//dossier qui doit être pushé sur le dépôt distant accessible aux apprenants
+:_folder_repo_for_students: assets/shared
+
+//Liste des dossiers à synchroniser dans les SPOT shadow (séparer chaque chemin par un ;).
+:_folders_to_sync: {_folder_repo_for_students}
+
+//path vers le thème qui personnalise le thème par défaut
+// le nom du thème doit toujours avoir un suffixe *-theme.yml
+//cet attribut est
+:_pdf_theme: config/my-theme.yml
+
+//attribut compteur utilisé pour numéroter les questions. La valeur spécifiée sera la valeur de la première question
+:_question: 0
+
+//chemin relatif vers le répertoire qui contient les images des diagrammes
+:_relative_path_to_folder_diagram_images: ../{_folder_diagram_images}/
+
+//préfixe automatique avant chaque titre de tableau (ne pas mettre de valeur pour qu'il n'y ait pas de préfixe. Le numéro de table sera tout de même rendu)
+:_table_label:
+
+
+
+// ***************************************************************
+// Attributs dynamiques créés dans des fichiers spécifiques
+// ***************************************************************
+
+:_current_version: X.X.X
+:_date_version: yyyy-mm-dd HH:mm:ss
+
+//si le document est chargé depuis main, on vérifie que l'on n'est pas dans un environnement gitlab avant d'inclure les fichiers car ils sont inutiles dans cet environnement et ne sont pas présents dans le dépôt
+ifdef::_main_loaded[]
+ifndef::env-gitlab[]
+//attribut contenant le numéro de version du document
+include::../{_folder_cache}/{_file_cache_version_number}[]
+
+//attribut contenant la date de version du document
+include::../{_folder_cache}/{_file_cache_version_date}[]
+endif::env-gitlab[]
+endif::_main_loaded[]
+
+
+
+
+// ***************************************************************
+// Attributs de configuration des plugins
+// ***************************************************************
+
+// *** plugin de génération des diagrammes UML ***/
+
+// fichiers des métadonnées des images des diagrammes générés avec asciidoctor diagram (lorsque cet attribut n'est pas défini, le dossier par défaut est .asciidoctor/diagram) : https://docs.asciidoctor.org/diagram-extension/latest/
+:diagram-cachedir: cache/diagram
+
+//emplacement des images générées par asciidoctor diagram (https://docs.asciidoctor.org/diagram-extension/latest/)
+:imagesoutdir: {_folder_diagram_images}
+
+// *** plugin de ... ***/

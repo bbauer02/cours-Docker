@@ -1,0 +1,67 @@
+#    https://github.com/asciidoctor/asciidoctor-pdf/blob/main/data/themes/default-theme.yml
+extends: default
+#base:
+#    font-color: #FF0000
+role:
+    green:
+        background_color: #00FF00
+    test:
+        background_color: #00FF00
+    question:
+        background_color: #FFE932
+    keyword:
+        font-color: #E25800
+
+heading:
+    font_color: #E25800
+image:
+    border_color: #CCCCCC
+    border_width: 0.75
+    background-color: #FFE932
+    padding: 4
+header:
+#    décalage du texte par rapport au bord haut de lapage
+    height: 0.47in
+#
+    line-height: 1.2
+    vertical_align: bottom
+    border_width: 0.75
+    border_color: #DDDDDD
+#    background-color: #BBBBBB
+    recto: &shared_header_recto
+        left:
+            content: '{document-title}'
+        right:
+            content: '| {_current_version}'
+    verso: *shared_header_recto
+
+footer:
+#    background-image: image:running-content-bg-{page-layout}.svg[]
+    height: 0.55in
+    line-height: 1
+    vertical_align: top
+#    border-width: 0.75
+    recto: &shared_footer_recto
+#        columns: =100%
+        left:
+#            content: 'image:../images/licence-80x15.png[]  {_document_author}'
+            content: '(c) {_document_author} | '
+        right:
+            content: '{chapter-title} | {page-number} / {page-count}'
+    verso: *shared_footer_recto
+title_page:
+        text_align: left
+        title:
+            top: 3%
+            font_color: #E25800
+
+
+
+
+
+#    recto:
+#        right:
+#            content: '{chapter-title} | {page-number} / {page-count}'
+#    verso:
+#        left:
+#            content: '{page-number} of {page-count} | *{chapter-title}*'

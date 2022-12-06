@@ -1,0 +1,1227 @@
+4.0 Les images Docker
+#################################
+
+Nous allons parler des images **Docker**.
+Une image est un système de fichier qui contient une application et l’ensemble des éléments nécessaires pour la faire tourner.
+On peut voir une image comme étant un **template** permettant la création d’un container.
+L’image est portable sur n’importe quel environnement où tourne **Docker** et est composée de **couches** (**layers**) qui peuvent être réutilisé par d’autres images.
+On distribue une image via un **registry** ( ex : Docker Hub)
+
+
+Contenu d’une image :
+
+.. image:: img/docker/image10.png
+
+La construction du fichier image, se fait dans l’ordre inverse du contenu d’une image que l’on vient de lister.
+
+On part d’un OS de base qui va ajouter une ou plusieurs couches comme le système de fichiers.
+A cet OS on va ajouter une ou plusieurs couches liées à l’environnement de notre application puis de la même façon les dépendances et le code applicatifs.
+
+Et l’ensemble de ses couches forment l’image.
+
+.. image:: img/docker/image34.png
+
+4.1 Union Filesystem
+************************
+
+Une image est donc constituée d’un ensemble de **layers** ou **couches** et chacune d’elles est en **lectures seules**. Et c’est le rôle du **storage/graph driver** de constituer le système de fichier global de l’instance du container.
+
+Le **Graph driver** ajoute en plus une couche qui est en **lecture/écriture** pour permettre au processus de modifier le filesystem sans que les modifications ne soient persistées dans les layers de l’image.
+Il existe plusieurs **filesystem** et le choix du système dépend principalement du **filesystem hôte**.
+Par default, toutes les layers sont installées dans le répertoire ``/var/lib/docker`` sur la machine hôte et c’est à cette endroit que sont stockées toutes les layers des images.
+
+.. warning::
+
+  Sur windows 10, docker s’exécute sur une VM.
+  Ressources à consulter pour comprendre comment Docker fonction sous Windows :
+
+  #. https://docs.docker.com/desktop/windows/
+  #. https://forums.docker.com/t/the-location-of-images-in-docker-for-windows/19647
+
+Pour accèder à ce dossier sous Windows, il faut alors créer un container et le lier avec Docker :
+
+.. code-block::
+
+  docker run -it --privileged --pid=host debian nsenter -t 1 -m -u -i sh
+
+Nous pouvons alors lister le dossier ``/var/lib/docker`` dans le shell.
+
+.. code-block::
+
+  ls /var/lib/docker
+
+Il est possible de modifier des fichiers qui sont apportés par une layer ; cela s’appelle : **copy-On-Write**.
+Le fichier original est alors copier dans la layer qui est en **lecture / écriture** et la modification peut être **persistée**.
+
+.. image:: img/docker/image35.png
+
+4.2 Exercices
+************************
+4.2.1 Exercice 1 : Container's layer
+===============================================
+
+La layer d’un container, est la layer **read-write** créé lorsqu’un container est lancé.
+C’est la layer dans laquelle tous les changements effectués dans le container sont sauvegardés. 
+Cette layer est supprimée avec le container et ne doit donc pas être utilisée comme un stockage persistant.
+
+**Lancement d'un container**
+
+Utilisez la commande suivante pour lancer un **shell intéractif** dans un container basé sur l’image ``ubuntu``.
+
+.. code-block::
+
+  docker container run -ti ubuntu
+
+**Installation d'un package**
+
+**figlet** est un package qui prend un texte en entrée et le formatte de façon amusante. 
+Par défaut ce package n’est pas disponible dans l’image ubuntu. 
+
+Vérifiez le avec la commande suivante:
+
+.. code-block::
+
+  figlet
+
+La commande devrait donner le résultat suivant :
+
+.. code-block::
+
+  bash: figlet: command not found
+
+Installez le package **figlet** avec les commandes suivantes:
+
+.. code-block::
+
+  apt-get update -y
+  apt-get install figlet
+
+Vérifiez que le binaire fonctionne :
+
+.. code-block::
+
+  figlet Hola
+
+Ce qui devrait donner le résultat suivant
+
+.. code-block::
+
+  | | | | ___ | | __ _
+  | |_| |/ _ \| |/ _` |
+  |  _  | (_) | | (_| |
+  |_| |_|\___/|_|\__,_|
+
+Sortez du container.
+
+.. code-block::
+
+  exit
+
+**Lancement d'un nouveau container**
+
+Lancez un nouveau container basé sur ``ubuntu``.
+
+.. code-block::
+
+  docker container run -ti ubuntu
+
+Vérifiez si le package figlet est présent :
+
+.. code-block::
+
+  figlet
+
+Vous devriez obtenir l’erreur suivante:
+
+.. code-block::
+
+  bash: figlet: command not found
+
+Comment expliquez-vous ce résultat ?
+Chaque container lancé à partir de l’image **ubuntu** est différent des autres. 
+Le second container est différent de celui dans lequel **figlet** a été installé. 
+Chacun correspond à une instance de l’image ubuntu et a sa propre **layer**, ajoutée au dessus des layers de l’image, et dans laquelle tous les changements effectués dans le container sont sauvegardés.
+
+Sortez du container.
+
+.. code-block::
+
+  exit
+
+**Redémarrage du container**
+
+Listez les containers (en exécution ou non) sur la machine hôte.
+
+.. code-block::
+
+  docker container ls -a
+
+Depuis cette liste, récuperez l’ID du container dans lequel le package figlet a été installé et redémarrez le avec la commande suivante. 
+
+**Note:** la commande ``start`` permet de démarrer un container se trouvant dans l'état ``Exited``.
+
+.. code-block::
+
+  docker container start <CONTAINER_ID>
+
+Lancez un **shell intéractif** dans ce container en utilisant la commande ``exec``.
+
+.. code-block::
+
+  docker container exec -ti <CONTAINER_ID> bash
+
+Vérifez que **figlet** est présent dans ce container.
+
+.. code-block::
+
+  figlet Hola
+
+Résultat : 
+
+.. code-block::
+
+  | | | | ___ | | __ _
+  | |_| |/ _ \| |/ _` |
+  |  _  | (_) | | (_| |
+  |_| |_|\___/|_|\__,_|
+
+Vous pouvez maintenant sortir du container.
+
+.. code-block::
+
+  exit
+
+**Nettoyage**
+
+Listez les containers (en exécution ou non) sur la machine hôte
+
+.. code-block::
+
+  docker container ls -a
+
+Pour supprimer tous les containers, nous pouvons utiliser les commandes ``rm`` et ``ls -aq`` conjointement. Nous ajoutons l’option ``-f`` afin de forcer la suppression des containers encore en exécution. Il faudrait sinon arrêter les containers et les supprimer.
+
+.. code-block::
+
+  docker container rm -f $(docker container ls -aq)
+
+Tous les containers ont été supprimés, vérifiez le une nouvelle fois avec la commande suivante:
+
+.. code-block::
+
+  docker container ls -a
+
+4.3 DockerFile
+************************
+
+Le **DockerFile** est un fichier texte qui est utilisé pour la construction d’**une image DOCKER**. 
+Il contient des instructions pour la construction du système de fichier d’une image.
+Nous allons partir d’un fichier de base qui sera enrichie par notre application et l’ensemble de ses dépendances.
+
+* Exemple d’un **Docker File** dans laquelle est packagée une application **NODEJS**.
+
+.. image:: img/docker/image36.png
+
+Avec l’instruction **FROM** nous définissons une image de base dans laquelle l’application **NODEJS** sera packagée.
+
+* **COPY** qui permet d’ajouter la liste des dépendances.
+* **RUN** permet de définir la commande d’installation des dépendances.
+* **EXPOSE** défini le port utilisé par l’application.
+* **WORKDIR** nous positionnes dans le répertoire de travail.
+* **CMD** défini la commande à lancer lorsqu’un container sera lancer à partir de cette image.
+
+
+Voici la liste des principales instructions à utiliser dans un **DockerFile**.
+
+.. image:: img/docker/image37.png
+
+**L’instruction FROM.**
+
+Il s’agit de la première instruction dans un DOckerFile. Elle permet de spécifier l’image à partir de laquelle nous allons créer une nouvelle image.
+On peut partir d’une image d’un OS, ou d’une image contenant déjà des applications comme un serveur web, ou un environnement d’exécution enveloppé dans une image contenant un OS de base.
+
+Nous pouvons utiliser également une image particulière qui s’appelle **SCRATCH**, c’est une image au sens **DOCKER** même si elle est vide, et peut etre utilisé par example dans une application écrite en langage GO qui n’a pas besoin d’être packagé dans un système de fichier.
+
+**L’instruction ENV.**
+
+Cette instruction nous permet de définir des variables d’environnement. Et pourront être utilisée dans les instructions suivantes lors de la construction de l’image. On les retrouvera dans l’environnement des containers lancés à partir de cette image.
+
+.. image:: img/docker/image38.png
+
+Dans cet exemple, nous construisons une image basée sur NGINX et on défini une variable ``path`` que l’on pourra utiliser dans les instructions suivantes : **WORKDIR** et **COPY**.
+
+**L’instruction COPY / ADD.**
+
+Permet de copier des ressources locales vers le système de fichier de l’image que l’on créé.
+
+Et cela engendre la création d’une nouvelle layer pour l’image.
+
+Avec l’option ``–chown`` on peut définir les droits sur ces fichiers qu’auront les utilisateurs de l’image.
+
+ADD permet des actions supplémentaires comme récupérer des ressources à partir d’une URL.
+Ou de Dézipper des fichiers.
+
+Il est préférable d’utiliser **COPY** par rapport à **ADD** car l’on maitrise davantage comment la copie est faite.
+
+**L’instruction RUN.**
+
+**RUN** est une instruction qui va engendrer la construction d’une nouvelle **layer** pour l’image.
+
+Elle permet d’exécuter une commande dans le système de fichier de l’image comme l’installation d’un package.
+Il y a 2 formats pour définir la commande.
+Le format **SHELL** qui va lancer la commande dans le contexte d’un **shell**.
+Et le format **Exec** qui va définir la commande comme une liste de **string** et qui n’est pas lancée dans le contexte d’un **shell**.
+
+.. image:: img/docker/image39.png
+
+**L’instruction EXPOSE.**
+
+Permet de spécifier les ports sur lesquels l’application écoute au lancement du container. Mais cela peut être modifié par l’option : ``-p`` lors de la création du container.
+Nous pouvons utiliser aussi un mapping comme vu précédemment : ``-p HOST_PORT:CONTAINER_PORT``.
+
+On peut aussi utiliser l’option ``P`` dans ce cas le démon **DOCKER** va publier l’ensemble des ports en attribuant à chacun un port de la machine hôte.
+
+.. image:: img/docker/image40.png
+
+**L’instruction VOLUME.**
+
+Permet de définir un répertoire dont les données sont découplées du cycle de vie du container.
+Les fichiers ne seront pas stockés dans la layer **lecture/écriture** du container mais dans le système de fichier de la machine hôte. Et si le container est supprimé, les données de ce répertoire seront toujours là.
+
+Si on reprend l’exemple du **dockerfile** de **MongoDB**.
+
+.. image:: img/docker/image41.png
+
+L’instruction *VOLUME* est utilisée pour créer 2 volumes. Au lancement de cette image, deux répertoires seront créés sur la machine hôte.
+
+**L’instruction USER.**
+
+Si on ne définit pas l’utilisateur, par défaut se sera ``ROOT`` qui sera utilisé. Ce qui pose des problèmes de sécurité évident.
+
+**L’instruction HEALTHCHECK.**
+
+Vérifie l’état de santé du processus qui tourne dans un container. On peut définir des options comme la fréquence d’inspection.
+
+.. image:: img/docker/image42.png
+
+**L’instruction ENTRYPOINT / CMD.**
+
+Spécifie la commande qui sera exécuté lorsque l’on lancera un container basé sur cette image.
+Les instruction **CMD** et **ENTRYPOINT** sont les dernières instructions du fichier **DOCKERFILE**.
+
+On précise souvent le binaire de l’application dans **ENTRYPOINT** et les paramètres dans CMD.
+
+La commande alors exécuté correspondra à la concaténation de **ENTRYPOINT** et **CMD**.
+
+On peut modifier ses paramètres au lancement du container si besoin avec l’annotation **Shell** ou **Exec** vu précédemment.
+
+.. image:: img/docker/image43.png
+
+4.3 Création d’images
+************************
+
+Il est temps maintenant de créer notre image.
+Dans un premier temps il faut : créer un fichier **DockerFile** qui contiendra les instructions nécessaires.
+Ensuite il faut utiliser la commande :
+
+.. code-block::
+
+  docker image builde [OPTIONS] PATH | URL | -
+
+Des options courantes :
+
+* ``-f`` : spécifie le fichier à utiliser pour la construction (**DockerFile** par défaut)
+* ``--tag / -t`` : spécifie le nom de l’image ([registry/]user/repository :tag)
+* ``--label`` : ajout de métadonnées à l’image.
+
+4.4 Mise en pratique
+************************
+
+Nous allons créer une simple application **NODEJS** qui renverra la date et l’heure.
+Tout l’environnement nécessaire à l’exécution de ce script sera intégré dans une image que nous allons créer.
+
+
+Dans un dossier, créez le fichier ``index.js``:
+
+.. code-block:: javascript
+
+  var express = require('express');
+  var util = require('util');
+  var app = express();
+
+  app.get('/', function(req, res) {
+    res.setHeader('Content-Type', 'text/plain');
+    res.end(util.format('%s - %s\n', new Date(), 'Got Request'));
+  });
+  app.listen(process.env.PORT || 8080);
+
+Puis créez le fichier ``package.js`` dans le même dossier :
+
+.. code-block:: JSON
+
+  {
+    "name": "testnode",
+    "version": "0.0.1",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "dependencies": {
+      "express": "^4.14.0"
+    }
+  }
+
+Dans une console, placez vous dans le dossier dans lequel vous avez déposé les fichiers et tapez :
+
+.. code-block::
+
+  npm install
+
+puis
+
+.. code-block::
+
+  npm start
+
+Ouvrez un navigateur à l’adresse : `http://localhost:8080 <http://localhost:8080>`_ 
+
+Si tout se passe comme prévu alors vous dévriez avoir ceci :
+
+.. image:: img/docker/image33.png
+
+Notre application fonctionne, mais cela est lourd pour l’utilisateur :
+
+#. Il doit avoir NODEJS d’installé sur sa machine.
+#. Il doit installer les dépendances du projet, ici ``express``.
+#. Il doit lancer le serveur Nodejs.
+
+Il faudrait donc créer une image réalisant ces étapes !!
+
+Nous allons créer un **DockerFile**.
+
+Il nous faut trouver une image de base sur : `Docker Hub <https://hub.docker.com/search?type=image>`_
+
+**Cochez** : « **Official Images** » pour n’avoir que des images officielles.
+Nous voyons que nous avons une multitude de possibilité pour concevoir notre image.
+
+.. image:: img/docker/image23.png
+
+Nous pouvons partir sur une image **LINUX** : **UBUNTU**, **ALPINE** …Etc mais aussi une image où le runtime **NODEJS** est déjà packagé.
+C’est ce que nous allons choisir.
+
+.. image:: img/docker/image24.png
+
+En cliquant dessus, sélectionnez l’onglet **TAGS**.
+
+.. image:: img/docker/image25.png
+
+Et dans la liste, nous allons nous intéresser à une version de **NODEJS** sous Alpine3.15.
+
+.. image:: img/docker/image26.png
+
+Et conservons en mémoire le tag de cette version de node : current-alpine3.15
+
+Maintenant dans le dossier contenant notre application, créons un fichier : **Dockerfile**. Sans extension.
+
+**Fichier : Dockerfile**
+
+.. code-block::
+
+  # Nous renseignons dans l'instruction FROM le Tag de notre image qui servira de base à notre application
+  FROM node:current-alpine3.15
+
+  # Nous allons copier nos fichiers sources du répertoire courant du fichier Dockerfile dans le repertoire /app/.
+  # C'est un répertoire qui sera créé dans l'image lorsque l'on va faire le build
+  COPY . /app/
+  RUN cd /app && npm install
+  EXPOSE 8080
+  WORKDIR /app
+  CMD ["npm", "start"]
+
+A partir de ce **Dockerfile**, nous allons pouvoir créer une **image**.
+
+.. code-block::
+
+  docker image build -t appbts:0.1 .
+
+.. image:: img/docker/image27.png
+
+Nous voyons que pour chaque instruction nous avons une étape.
+
+Si nous allons dans **Docker Desktop** , onglet « **Images** » :
+
+.. image:: img/docker/image28.png
+
+Nous voyons notre image, avec son nom et son numéro de version.
+Nous pouvons maintenant créer un containeur avec notre application, 
+en précisant que nous utiliserons le ``port 8080`` du container sur le ``port 8080`` de ma machine hôte.
+
+.. code-block::
+
+  docker container run -p 8080:8080 appbts:0.1
+
+Et je peux maintenant utiliser mon navigateur à l’adresse : `http://localhost:8080 <http://localhost:8080>`_
+
+4.5 Exercices : Création d’images
+****************************************
+
+4.5.1 Exercice 1 : Création d’une image à partir d’un container
+====================================================================
+
+#. Lancez une container basé sur une image **alpine**, en mode **interactif**, et en lui donnant le nom ``c1``.
+#. Lancez la commande ``curl google.com``.
+
+Qu'observez-vous ?
+
+#. Installez ``curl`` à l’aide du gestionnaire de package ``apk``.
+#. Quittez le container avec ``CTRL-P CTRL-Q`` (pour ne pas killer le processus de **PID 1**).
+#. Créez une image, nommée ``curly``, à partir du container ``c1``.
+
+Utilisez pour cela la commande ``commit`` (``docker commit --help`` pour voir le fonctionnment de cette commande).
+
+#. Lancez un ``shell`` intéractif dans un container basée sur l’image ``curly`` et vérifiez que ``curl`` est présent.
+
+4.5.2 Exercice 2 : Dockerizez un serveur web simple
+========================================================
+
+#. Créer un nouveau répertoire et développez un serveur **HTTP** qui expose le endpoint ``/ping`` sur le **port 80** et répond par **PONG**. Inspirez vous de l’exemple du cours ci-dessus.
+#. Dans le même répertoire, créez le fichier **Dockerfile** qui servira à construire l'image de l'application. Ce fichier devra décrire les actions suivantes :
+  
+  * spécification d'une image de base.
+  * installation du runtime correspondant au langage choisi.
+  * installation des dépendances de l’application.
+  * copie du code applicatif.
+  * exposition du port d’écoute de l’application.
+  * spécification de la commande à exécuter pour lancer le serveur.
+
+
+#. Construire l’image en la taguant ``pong:v1.0``.
+#. Lancez un container basé sur cette image en publiant le ``port 80`` sur le ``port 8080`` de la machine hôte.
+#. Tester l'application.
+#. Supprimez le container.
+
+4.5.3 Exercice 3 : ENTRYPOINT et CMD
+===========================================
+
+Nous allons illustrer sur plusieurs exemples l’utilisation des instructions **ENTRYPOINT** et **CMD**. 
+Ces instructions sont utilisées dans un **Dockerfile** pour définir la commande qui sera lancée dans un container.
+
+Format
+----------
+
+Dans un **Dockerfile**, les instructions **ENTRYPOINT** et **CMD** peuvent être spécifiées selon 2 formats:
+
+* le format ``shell``, ex: ``ENTRYPOINT /usr/bin/node index.js``. Une commande spécifée dans ce format sera exécutée via un shell présent dans l’image. Cela peut notamment poser des problématiques car les signaux ne sont pas forwardés aux processus forkés.
+* le format ``exec``, ex: ``CMD ["node", "index.js"]``. Une commande spécifiée dans ce format ne nécessitera pas la présence d’un shell dans l’image. On utilisera souvent le format exec pour ne pas avoir de problème si aucun shell n’est présent.
+
+Ré-écriture à l’exécution d’un container
+--------------------------------------------------
+
+**ENTRYPOINT** et **CMD** sont 2 instructions du Dockerfile, mais elle peuvent cependant être écrasées au lancement d’un container:
+
+* pour spécifier une autre valeur pour l'**ENTRYPOINT**, on utilisera l’option ``--entrypoint``, par exemple: ``docker container run --entrypoint echo alpine hello``.
+* pour spécifier une autre valeur pour CMD, on précisera celle-ci après le nom de l’image, par exemple: ``docker container run alpine echo hello``.
+
+Instruction ENTRYPOINT utilisée seule
+--------------------------------------------------
+
+L’utilisation de l’instruction **ENTRYPOINT** seule permet de créer un wrapper autour de l’application. 
+Nous pouvons définir une commande de base et lui donner des paramètres suplémentaires, si nécessaire, au lancement d’un container.
+
+Dans ce premier exemple, vous allez créer un fichier **Dockerfile-v1** contenant les instructions suivantes:
+
+.. code-block::
+
+  FROM alpine
+  ENTRYPOINT ["ping"]
+
+Créez ensuite une image, nommée ``ping:1.0``, à partir de ce fichier.
+
+.. code-block::
+
+  docker image build -f Dockerfile-v1 -t ping:1.0 .
+
+Lancez maintenant un container basé sur l’image **ping:1.0**
+
+.. code-block::
+
+  docker container run ping:1.0
+
+La commande ``ping`` est lancée dans le container (car elle est spécifiée dans **ENTRYPOINT**), ce qui produit le message suivant:
+
+.. code-block::
+
+  BusyBox v1.26.2 (2017-05-23 16:46:25 GMT) multi-call binary.
+  Usage: ping [OPTIONS] HOST
+  Send ICMP ECHO_REQUEST packets to network hosts
+        -4,-6           Force IP or IPv6 name resolution
+        -c CNT          Send only CNT pings
+        -s SIZE         Send SIZE data bytes in packets (default:56)
+        -t TTL          Set TTL
+        -I IFACE/IP     Use interface or IP address as source
+        -W SEC          Seconds to wait for the first response (default:10)
+                        (after all -c CNT packets are sent)
+        -w SEC          Seconds until ping exits (default:infinite)
+                        (can exit earlier with -c CNT)
+        -q              Quiet, only display output at start
+                        and when finished
+        -p              Pattern to use for payload
+
+Par défaut, aucune machine hôte n’est ciblée, et à chaque lancement d’un container il est nécessaire de préciser un **FQDN** ou une **IP**.
+La commande suivante lance un nouveau container en lui donnant l’adresse IP d’un DNS Google (``8.8.8.8``), 
+nous ajoutons également l’option ``-c 3`` pour limiter le nombre de ping envoyés.
+
+.. code-block::
+
+  docker container run ping:1.0 -c 3 8.8.8.8
+
+Nous obtenons alors le résultat suivant :
+
+.. code-block::
+
+  PING 8.8.8.8 (8.8.8.8): 56 data bytes
+  64 bytes from 8.8.8.8: seq=0 ttl=37 time=8.731 ms
+  64 bytes from 8.8.8.8: seq=1 ttl=37 time=8.503 ms
+  64 bytes from 8.8.8.8: seq=2 ttl=37 time=8.507 ms
+  --- 8.8.8.8 ping statistics ---
+  3 packets transmitted, 3 packets received, 0% 
+  round-trip min/avg/max = 8.503/8.580/8.731 ms
+
+La commande lancée dans le container est donc la concaténation de l'**ENTRYPOINT** et de la commande spécifiée lors du lancement du container (tout ce qui est situé après le nom de l’image).
+Comme nous pouvons le voir dans cet exemple, l’image que nous avons créée est un wrapper autour de l’utilitaire ``ping`` et nécessite de spécifier des paramêtres supplémentaires au lancement d’un container.
+
+Instructions CMD utilisée seule
+--------------------------------------------------
+
+De la même manière, il est possible de n’utiliser que l’instruction **CMD** dans un **Dockerfile**, c’est d’ailleurs très souvent l’approche qui est utilisée car il est plus simple de manipuler les instructions **CMD** que les **ENTRYPOINT**.
+Créez un fichier **Dockerfile-v2** contenant les instructions suivantes:
+
+.. code-block::
+
+  FROM alpine
+  CMD ["ping"]
+
+Créez une image, nommée **ping:2.0** , à partir de ce fichier.
+
+.. code-block::
+
+  docker image build -f Dockerfile-v2 -t ping:2.0 .
+
+Si nous lançons maintenant un nouveau container, il lancera la commande ping comme c’était le cas avec l’exemple précédent dans lequel seul l’ENTRYPOINT était défini.
+
+.. code-block::
+
+  $ docker container run ping:2.0
+  
+  BusyBox v1.26.2 (2017-05-23 16:46:25 GMT) multi-call binary.
+  Usage: ping [OPTIONS] HOST
+  Send ICMP ECHO_REQUEST packets to network hosts
+          -4,-6           Force IP or IPv6 name resolution
+          -c CNT          Send only CNT pings
+          -s SIZE         Send SIZE data bytes in packets (default:56)
+          -t TTL          Set TTL
+          -I IFACE/IP     Use interface or IP address as source
+          -W SEC          Seconds to wait for the first response (default:10)
+                          (after all -c CNT packets are sent)
+          -w SEC          Seconds until ping exits (default:infinite)
+                          (can exit earlier with -c CNT)
+          -q              Quiet, only display output at start
+                          and when finished
+          -p              Pattern to use for payload
+
+Nous n’avons cependant pas le même comportement que précédemment, car pour spécifier la machine à cibler, il faut redéfinir la commande complète à la suite du nom de l’image.
+
+Si nous ne spécifions que les paramètres de la commande ping, nous obtenons un message d’erreur car la commande lancée dans le container ne peut pas être interpretée.
+
+.. code-block::
+
+  docker container run ping:2.0 -c 3 8.8.8.8
+
+Vous devriez alors obtenir l’erreur suivante:
+
+.. code-block::
+
+  container_linux.go:247: starting container process caused "exec: \"-c\": executable file not found in $PATH"
+  docker: Error response from daemon: oci runtime error: container_linux.go:247: starting container process ca
+  used "exec: \"-c\": executable file not found in $PATH".
+  ERRO[0000] error getting events from daemon: net/http: request canceled
+
+Il faut redéfinir la commande dans sa totalité, ce qui est fait en la spécifiant à la suite du nom de l’image.
+
+.. code-block::
+
+  $ docker container run ping:2.0 ping -c 3 8.8.8.8
+  PING 8.8.8.8 (8.8.8.8): 56 data bytes
+  64 bytes from 8.8.8.8: seq=0 ttl=37 time=10.223 ms
+  64 bytes from 8.8.8.8: seq=1 ttl=37 time=8.523 ms
+  64 bytes from 8.8.8.8: seq=2 ttl=37 time=8.512 ms
+  --- 8.8.8.8 ping statistics ---
+  3 packets transmitted, 3 packets received, 0% packet loss
+  round-trip min/avg/max = 8.512/9.086/10.223 ms
+
+
+Instructions ENTRYPOINT et CMD
+--------------------------------------------------
+
+Il est également possible d’utiliser ENTRYPOINT et CMD en même temps dans un Dockerfile, ce qui permet à la fois de créer un wrapper autour d’une application et de spécifier un comportement par défaut.
+
+Nous allons illustrer cela sur un nouvel exemple et créer un fichier Dockerfile-v3 contenant les instructions suivantes:
+
+.. code-block::
+
+  FROM alpine
+  ENTRYPOINT ["ping"]
+  CMD ["-c3", "localhost"]
+
+Ici, nous définissons ENTRYPOINT et CMD, la commande lancée dans un container sera la concaténation de ces 2 instructions: ping -c3 localhost.
+Créez une image à partir de ce Dockerfile, nommez la ping:3.0, et lançez un nouveau container à partir de celle-ci. 
+
+.. code-block::
+
+  $ docker image build -f Dockerfile-v3 -t ping:3.0 .
+  $ docker container run ping:3.0
+
+Vous devriez alors obtenir le résultat suivant:
+
+.. code-block::
+
+  PING localhost (127.0.0.1): 56 data bytes
+  64 bytes from 127.0.0.1: seq=0 ttl=64 time=0.062 ms
+  64 bytes from 127.0.0.1: seq=1 ttl=64 time=0.102 ms
+  64 bytes from 127.0.0.1: seq=2 ttl=64 time=0.048 ms
+  --- localhost ping statistics ---
+  3 packets transmitted, 3 packets received, 0% packet loss
+  round-trip min/avg/max = 0.048/0.070/0.102 ms
+
+Nous pouvons écraser la commande par défaut et spécifier une autre adresse IP
+
+.. code-block::
+
+  docker container run ping:3.0 8.8.8.8
+
+Nous obtenons alors le résultat suivant:
+
+.. code-block::
+
+  PING 8.8.8.8 (8.8.8.8): 56 data bytes
+  64 bytes from 8.8.8.8: seq=0 ttl=38 time=9.235 ms
+  64 bytes from 8.8.8.8: seq=1 ttl=38 time=8.590 ms
+  64 bytes from 8.8.8.8: seq=2 ttl=38 time=8.585 ms
+
+Il faut alors faire un CTRL-C pour arrêter le container car l’option -c3 limitant le nombre de ping n’a pas été spécifiée.
+Cela nous permet à la fois d’avoir un comportement par défaut et de pouvoir facilement le modifier en spécifiant une autre commande.
+
+
+Pour aller plus loin : ou est stockée mon image ?
+-------------------------------------------------------
+
+Stockage d'une image
+-------------------------------------------------------
+
+Dans un exercice précédent, nous avons créé une image nommée ping:1.0, nous allons voir ici ou cette image est stockée.
+
+Reprenons le Dockerfile de l'exercice :
+
+.. code-block::
+
+  FROM ubuntu:16.04
+  RUN apt-get update -y && apt-get install -y iputils-ping
+  ENTRYPOINT ["ping"]
+  CMD ["8.8.8.8"]
+
+A partir de ce Dockerfile, l'image est buildée avec la commande suivante :
+
+.. code-block::
+
+  $ docker image build -t ping:1.0 .
+
+  Sending build context to Docker daemon  2.048kB
+  Step 1/4 : FROM ubuntu:16.04
+  ---> 5e8b97a2a082
+  Step 2/4 : RUN apt-get update -y && apt-get install -y iputils-ping
+  ---> Using cache
+  ---> 4cd5304ad0fb
+  Step 3/4 : ENTRYPOINT ["ping"]
+  ---> Using cache
+  ---> d2846bbd30e8
+  Step 4/4 : CMD ["8.8.8.8"]
+  ---> Using cache
+  ---> 00a905f2bd5a
+  Successfully built 00a905f2bd5a
+  Successfully tagged ping:1.0
+
+Pour lister les images présentes localement on utilise la commande ``docker image ls`` (on reverra cette commande un peu plus loin). Pour ne lister que les images qui ont le nom ``ping`` on le précise à la suite de ``ls``.
+
+.. code-block::
+
+  $ docker image ls ping
+
+  REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+  ping                1.0                 00a905f2bd5a        4 weeks ago         159MB 
+
+Notre image est constituée d'un ensemble de layers, il faut voir chaque layer comme un morceau de système de fichiers.
+L'ID de l'image (dans sa version courte) est 00a905f2bd5a, nous allons voir à partir de cette identifiant comment l'image est stockée sur la machine hôte (la machine sur laquelle tourne le daemon Docker).
+
+Tout se passe dans le répertoire ``/var/lib/docker``, c'est le répertoire au Docker gère l'ensemble des primitives (containers, images, volumes, networks, ...). Et plus précisément dans ``/var/lib/docker/image/overlay2/``, overlay2 étant le driver en charge du stockage des images.
+
+**Note:** si vous utilisez **Docker for Mac** ou **Docker for Windows**, il est nécessaire d'utiliser la commande suivante pour lancer un ``shell`` dans la machine virtuelle dans laquelle tourne le daemon Docker. On pourra ensuite explorer le répertoire ``/var/lib/docker`` depuis ce shell.
+
+.. code-block::
+
+  docker run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+
+Plusieurs **fichiers / répertoires** ont un nom qui contient l'ID de notre image comme on peut le voir ci-dessous :
+
+.. code-block::
+  
+  /var/lib/docker/image/overlay2 # find . | grep 00a905f2bd5a
+  ./imagedb/content/sha256/00a905f2bd5aa3b1c4e28611704717679352a619bcdc4f8f6851cf459dc05816
+  ./imagedb/metadata/sha256/00a905f2bd5aa3b1c4e28611704717679352a619bcdc4f8f6851cf459dc05816
+  ./imagedb/metadata/sha256/00a905f2bd5aa3b1c4e28611704717679352a619bcdc4f8f6851cf459dc05816/lastUpdated
+  ./imagedb/metadata/sha256/00a905f2bd5aa3b1c4e28611704717679352a619bcdc4f8f6851cf459dc05816/parent
+
+
+**- Content** : le premier fichier contient un ensemble d'information concernant cette image, notamment les paramètres de configuration, l'historique de création (ensemble des commandes qui ont servi à construire le système de fichiers contenu dans l'image), et également l'ensemble des layers qui la constituent. Une grande partie de ces informations peuvent également être retrouvées avec la commande :
+
+.. code-block::
+
+  docker image inspect ping:1.0
+
+Parmi ces éléments, on a donc les identifiants de chaque layer :
+
+.. code-block:: JSON
+
+  "rootfs": {
+    "type": "layers",
+    "diff_ids": [
+      "sha256:644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d5ddde2",
+      "sha256:d7ff1dc646ba52a02312b535446d6c9b72cd09fda0480524e4828554efb2f748",
+      "sha256:686245e78935e73b737c9a82111c3c7df35f5529d06ce8c2f9a7cd32ec90b456",
+      "sha256:d73dd9e652956dccbbef716de4b172cc15fff644cc92fc69d221cc3a1cb89a39",
+      "sha256:2de391e51d731ba02b708038a7f98b7103061b916727bcd165e9ee6402f4cdde",
+      "sha256:3045bfad4cfefecabc342600d368863445b12ed18188f5f2896c5389b0e84b66"
+    ]
+  }
+
+Si l'on considère la première layer (celle dont l'ID est 6448...), on voit dans ``/var/lib/docker/image/overlay2`` qu'il y a un répertoire dont le nom correspond à l'ID de cette layer, celui-ci contient plusieurs fichiers :
+
+.. code-block:: 
+
+  /var/lib/docker/image/overlay2 # find . | grep '644879075e24394efef8a7dddefbc133aad42'
+  ./layerdb/sha256/644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d5ddde2
+  ./layerdb/sha256/644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d5ddde2/size
+  ./layerdb/sha256/644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d5ddde2/tar-split.json.gz
+  ./layerdb/sha256/644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d5ddde2/diff
+  ./layerdb/sha256/644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d5ddde2/cache-id
+  ./distribution/v2metadata-by-diffid/sha256/644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d
+
+Ceux-ci contiennent différentes information sur la layer en question. Parmi celles-ci, le fichier **cache-id** nous donne l'identifiant du cache qui a été généré pour cette layer.
+
+.. code-block:: 
+
+  /var/lib/docker/image/overlay2 # cat ./layerdb/sha256/644879075e24394efef8a7dddefbc133aad42002df6223cacf98bd1e3d5ddde2/cache-id
+  49908d07e177f9b61dc273ec7089efed9223d3798ad1d86c78d4fe953e227668
+
+Le système de fichier construit dans cette layer est alors accessible dans le répertoire :
+
+.. code-block:: 
+
+  /var/lib/docker/overlay2/49908d07e177f9b61dc273ec7089efed9223d3798ad1d86c78d4fe953e227668/diff/
+
+**LastUpdated** : ce fichier contient la date de dernière mise à jour de l'image
+
+.. code-block:: 
+
+  /var/lib/docker/image/overlay2 # cat ./imagedb/metadata/sha256/00a905f2bd5...459dc05816/lastUpdated
+  2018-07-31T07:32:04.6840553Z
+
+**- parent** : ce fichier contient l'identifiant du container qui a servi à créer l'image.
+
+.. code-block:: 
+
+  /var/lib/docker/image/overlay2 # cat ./imagedb/metadata/sha256/00a905f2bd5459dc05816/parent
+  sha256:d2846bbd30e811ac8baaf759fc6c4f424c8df2365c42dab34d363869164881ae
+
+On retrouve d'ailleurs ce container dans l'avant dernière étape de création de l'image.
+
+.. code-block::
+
+  Step 3/4 : ENTRYPOINT ["ping"]
+  ---> Using cache
+  ---> d2846bbd30e8
+
+Ce container est celui qui a été commité pour créer l'image finale.
+
+**En résumé :** il est important de garder en tête qu'une image est constituée de plusieurs layers. Chaque layer est une partie du système de fichiers de l'image finale. C'est le rôle du driver de stockage de stocker ces différentes layers et de construire le système de fichiers de chaque container lancé à partir de cette image.
+
+4.6 Multi-Stages Build
+****************************************
+
+Depuis la version ``17.05`` de Docker, nous pouvons découper le Build d’une image en plusieurs étapes.
+
+Un cas d’usage courant :
+
+**Etape 1** : Avoir une image de base contenant l’ensemble des librairies et binaires nécessaires pour la création d’artéfacts.
+
+**Etape 2** : Utiliser une image de base plus light et d’y copier les artéfacts générés à l’étape précédente.
+
+**Exemple :**
+
+Considérons une application **ReactJs**.
+Pour créer le squelette d’un projet React nous utilisons la commande :
+
+.. code-block::
+
+  npm init react-app api
+
+un dossier ``api`` est créé.
+
+.. code-block::
+
+  cd api
+
+En utilisant le **multistage build** nous allons construire des artéfacts Web. Et nous aurons seulement besoin de copier ces artefacts dans un serveur **WEB NGINX** dans un second temps.
+
+.. image:: img/docker/image29.png
+
+**Dans le DockerFile** :
+La premiere instruction **FROM** utilise une image NODE dans laquelle les dépendances de l’application seront installées. Et le code applicatif Buildé.
+
+Et la seconde instruction **FROM** utilise utilise une image **NGINX** dans laquelle les assets web buildés précédemment sont copiés. Et au final nous avons une seule image qui contient notre application.
+
+Cela peut être vérifié en faisant le Build de l’image :
+
+.. image:: img/docker/image30.png
+
+4.6.1 Mise en pratique
+==========================
+
+Dans cette mise en pratique, nous allons illustrer le multi stage build.
+
+Rappel
+---------
+
+Comme nous l'avons vu, le Dockerfile contient une liste d'instructions qui permet de créer une image. La première instruction est FROM, elle définit l'image de base utilisée. Cette image de base contient souvent beaucoup d'éléments (binaires et librairies) dont l'application finale n'a pas besoin (compilateur, ...). Ceci qui peut impacter de façon considérable la taille de l'image et également sa sécurité puisque cela peut considérablement augmenter sa surface d'attaque. C'est la qu'intervint le multistage build...
+
+Un serveur http écrit en Go
+-------------------------------
+
+Prenons l'exemple du programme suivant écrit en Go.
+
+Dans un nouveau répertoire, créez le fichier http.go contenant le code suivant. Celui-ci définit un simple serveur http qui écoute sur le port 8080 et qui expose le endpoint /whoami en GET. A chaque requête, il renvoie le nom de la machine hôte sur laquelle il tourne.
+
+.. code-block::
+
+  package main
+  import (
+          "io"
+          "net/http"
+          "os"
+  )
+  func handler(w http.ResponseWriter, req *http.Request) {
+          host, err := os.Hostname()
+          if err != nil {
+           io.WriteString(w, "unknown")
+          } else {
+            io.WriteString(w, host)
+          }
+  }
+  func main() {
+          http.HandleFunc("/whoami", handler)
+          http.ListenAndServe(":8080", nil)
+  }
+
+Dockerfile traditionel 
+-------------------------------
+
+Afin de créer une image pour cette application, créez tout dabord le fichier Dockerfile avec le contenu suivant (placez ce fichier dans le même répertoire que http.go):
+
+.. code-block::
+
+  FROM golang:1.17
+  WORKDIR /go/src/app
+  COPY http.go .
+  RUN go mod init
+  RUN CGO_ENABLED=0 GOOS=linux go build -o http .
+  CMD ["./http"]
+
+Note: dans ce Dockerfile, l'image officielle golang est utilisée comme image de base, le fichier source http.go est copié puis compilé.
+
+Vous pouvez ensuite builder l'image et la nommer whoami:1.0:.
+
+.. code-block::
+
+  docker image build -t whoami:1.0 .
+
+Listez les images présentes et notez la taille de l'image whoami:1.0
+
+.. code-block::
+
+  $ docker image ls whoami
+    REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
+    whoami       1.0       16795cf36deb   2 seconds ago   962MB
+
+L'image obtenue a une taille très conséquente car elle contient l'ensemble de la toolchain du langage Go. Or, une fois que le binaire a été compilé, nous n'avons plus besoin du compilateur dans l'image finale.
+
+Dockerfile utilisant un build multi-stage
+---------------------------------------------
+
+Le multi-stage build, introduit dans la version 17.05 de Docker permet, au sein d'un seul Dockerfile, d'effectuer le process de build en plusieurs étapes. Chacune des étapes peut réutiliser des artefacts (fichiers résultant de compilation, assets web, ...) créés lors des étapes précédentes. Ce Dockerfile aura plusieurs instructions FROM mais seule la dernière sera utilisée pour la construction de l'image finale.
+
+Si nous reprenons l'exemple du serveur http ci dessus, nous pouvons dans un premier temps compiler le code source en utilisant l'image golang contenant le compilateur. Une fois le binaire créé, nous pouvons utiliser une image de base vide, nommée scratch, et copier le binaire généré précédemment.
+
+Remplacer le contenu du fichier Dockerfile avec les instructions suivantes:
+
+.. code-block::
+
+  FROM golang:1.17 as build
+  WORKDIR /go/src/app
+  COPY http.go .
+  RUN go mod init
+  RUN CGO_ENABLED=0 GOOS=linux go build -o http .
+
+  FROM scratch
+  COPY --from=build /go/src/app .
+  CMD ["./http"]
+
+L'exemple que nous avons utilisé ici se base sur une application écrite en Go. ce langage a la particularité de pouvoir être compilé en un binaire static, c'est à dire ne nécessitant pas d'être "linké" à des librairies externes. C'est la raison pour laquelle nous pouvons partir de l'image scratch. Pour d'autres langages, l'image de base utilisée lors de la dernière étape du build pourra être différente (alpine, ...)
+
+Buildez l'image dans sa version 2 avec la commande suivante.
+
+.. code-block::
+
+  docker image build -t whoami:2.0 .
+
+Listez les images et observez la différence de taille entre celles-ci:
+
+.. code-block::
+
+  $ docker image ls whoami
+    REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
+    whoami       2.0       0a97315aeaaa   6 seconds ago   6.07MB
+    whoami       1.0       16795cf36deb   2 minutes ago   962MB
+
+Lancez un container basé sur l'image whoami:2.0
+
+.. code-block::
+
+  docker container run -p 8080:8080 whoami:2.0
+
+A l'aide de la commande curl, envoyez une requête GET sur le endpoint exposé. Vous devriez avoir, en retour, l'identifiant du container qui a traité la requète.
+
+.. code-block::
+
+  $ curl localhost:8080/whoami
+    7562306c6c5e
+
+Pour cette simple application, le multistage build a permit de supprimer les binaires et librairies dont la présence est inutile dans l'image finale. L'exemple d'une application écrite en go est extrème, mais le multistage build fait partie des bonnes pratiques à adopter pour de nombreux languages de développement.
+
+4.7 Prise en compte du cache
+****************************************
+
+Quand on écrit un Dockerfile, on doit prendre en compte le mécanisme de cache.
+
+Pour optimiser le temps nécessaire pour construire l’image.
+
+Quand une image est créée chaque instruction créée une layer et en fonction de la complexité du Dockerfile, le premier build peut prendre un peu de temps mais les suivant seront très rapide parce que les layers existantes seront réutilisés.
+
+Un Dockerfile qui est créé doit s’assurer que le cache est bien utilisé.
+
+On peut l’utiliser pour reconstruire une image après qu’un changement ait été effectué, dans un fichier de configuration par exemple de sorte qu’il empêche le code source d’être compilé à nouveau si cela n’est pas nécessaire.
+
+Il y a plusieurs façons de forcer la recréation des layers d’une image si besoin.
+Notamment par la modification de la valeur d’une variable d’environnement ou si on modifie le code source qui est pris en compte dans les instructions ADD ou COPY.
+
+Si une instruction invalide le cache, alors toutes les instructions après ne l’utiliseront pas.
+
+A partir de l’exemple de l’application NODEJS vue précédemment :
+
+.. image:: img/docker/image31.png
+
+Si on lance une nouvelle fois le build de l’image on voit que pour chaque instruction le cache est utilisé.
+Cela signifie que pour chaque instruction la layer qui a déjà été créé, la première version, est réutilisé.
+Lorsque que l’image est créée pour la première fois, cela prend un peu de temps car il faut récupérer les dépendances et l’image.
+Mais à l’aide du cache cela prend quelque seconde.
+
+Faites l’expérience :
+Dans le dossier contenant l’application NODEJS, tapez la commande :
+
+Docker image build -t app :0.1 .
+
+.. image:: img/docker/image21.png
+
+Nous allons maintenant modifier le code de l’application.
+Ouvrons : index.js et modifions le label
+
+.. code-block:: javascript
+
+  var express = require('express');
+  var util = require('util');
+  var app = express();
+  app.get('/', function(req, res) {
+    res.setHeader('Content-Type', 'text/plain');
+    res.end(util.format('%s - %s\n', new Date(), '==> Test Modification'));
+  });
+  app.listen(process.env.PORT || 8080);
+
+et rebuildons l’image
+
+.. image:: img/docker/image22.png
+
+Lorsque l’on a changé le code source, cela a entrainé la reconstruction des dépendances de package.json.
+Ici ce n’est pas très long car nous n’avons que le package Express mais dans des applications plus lourdes cela peut impacter les performances.
+
+Pour éviter ce problème nous allons modifier le DockerFile.
+
+Nous allons faire en sorte de séparer le COPY en deux.
+
+Dans le premier nous ne copierons que le fichier PACKAGE.JSON.
+Puis nous déplacerons l’instruction RUN de façon à récupérer les dépendances.
+
+Ensuite nous copierons le code applicatif.
+
+.. code-block:: javascript
+  
+  FROM node:current-alpine3.15
+  COPY package.json /app/package.json
+  RUN cd /app && npm install
+  COPY . /app/
+  EXPOSE 8080
+  WORKDIR /app
+  CMD ["npm", "start"]
+
+Nous rebuildons ensuite notre image.
+Le cache n’est pas utilisé car le DOCKERFILE a été modifié alors tout est reconstruit.
+
+Remodifions le code source.
+
+.. image:: img/docker/image46.png
+
+Le code source est rechargé sans avoir à reconstruire les dépendances.
+
+4.7.1 Exercice : Prise en compte du cache
+============================================
+
+#. Modifiez le code du serveur pong de l’exercice précédent. Vous pouvez par exemple ajouter une instruction qui loggue une chaine de caractère.
+#. Construisez une nouvelle image en la taguant pong:1.1
+#. Qu’observez-vous dans la sortie de la commande de build ?
+#. Modifiez le Dockerfile pour faire en sorte que les dépendances ne soient pas rebuildées si un changement est effectué dans le code. Créez l'image pong:1.2 à partir de ce nouveau Dockerfile.
+#. Modifiez une nouvelle fois le code de l'application et créez l'image pong:1.3. Observez la prise en compte du cache
+
+4.8 Le contexte de Build
+****************************************
+
+Quand on construit une image Docker avec la commande Docker image build.
+La première chose que le client Docker fait, c’est d’envoyer au Daemon, sous forme d’une archive Tar, l’ensemble des fichiers nécessaire pour construire le système de fichier de l’image.
+Cet ensemble constitue le Build Context.
+Par défaut, c’est tout les fichiers qui sont envoyés. Cela peut être dangereux si l’on a des informations sensibles.
+D’où l’intérêt d’utiliser un fichier .DOCKERIGNORE pour filtrer les fichier et les répertoires qui ne doivent pas être répertorié par le contexte de build.
+
+C’est le même principe que le fichier .gitignore sur GIT par exemple.
+
+
+Reprenons l’exemple de notre application NODEJS.
+
+Refaisons un build :
+
+.. image:: img/docker/image47.png
+
+Durant le build nous constatons qu’avant de transférer le context de build au Daemon Docker, on essaie de charger le fichier .dockerignore.
+
+Le contexte ici, correspond au répertoire courant symbolisé par le « . » à la fin de la commande docker image build.
+
+On ne veut pas forcement que certains fichiers arrivent au Docker Daemon, comme un historique GIT ou de données sensibles comme des mots de passe stockés dans un fichier ENV ..ETC
+
+Testons cela, en créant un dépôt git :
+
+Dans le répertoire du projet NODEJS :
+
+Git init
+
+.. image:: img/docker/image48.png
+
+Et relançons le build :
+
+Et constatons que le context transféré passe de : 21.28 Kb à 46.15kb. Cela signifie que l’ensemble des répertoires de git ont été transféré dans le Docker Daemon.
+
+Créons donc un fichier .dockerignore et ajoutons le dossier .git.
+
+.. image:: img/docker/image49.png
+
+.. image:: img/docker/image50.png
+
+Relançons le build et constatons la taille du context :
+
+=> => transferring context: 21.02kB
+
+Le .GIT n’est plus envoyé dans le context.
+
+Dans une application NODEJS, nous pourrions aussi ajouter le répertoire node_module qui contient les dépendances de l’application dans le .dockerignore.
+
+4.9 Les commandes de base avec docker image.
+************************************************
+
+**La commande PULL.**
+
+Permet de télécharger une image à partir d’un registry, par défault : Docker Hub.
+
+.. image:: img/docker/image51.png
+
+Format de nommage : USER/IMAGE :VERSION
+
+Si l’on ne précise pas de numéro de version, par défaut c’est « latest » qui est retenu.
+
+**La commande : push**
+
+La commande Push permet d’uploader une image dans un registry.
+Pour cela il faut avoir les droits sur ses images.
+Mais avant il faut avoir précisé ses identifiants de connexion au registry avec docker login.
+
+**La commande : Inspect**
+
+Permet de voir la liste des layer qui composent une image.  On peut utiliser ici aussi le formaliste Go Template.
+
+.. image:: img/docker/image52.png
+
+**La commande : History**
+
+Permet de voir l’historique d’une image.
+
+**La commande : ls**
+
+Permet d’énumérer les images localement.
+
+.. image:: img/docker/image53.png
+
+**Les commandes Save et Load.**
+
+Save permet de sauvegarder une image
+et Load permet de charger une image à partir d’une sauvegarde.
+
+.. image:: img/docker/image44.png
+
+**La commande : rm**
+
+Supprime une image avec l’ensemble de ses layers.
+Plusieurs images peuvent être supprimées en même temps.
+
+.. image:: img/docker/image45.png
+
+4.9.1 Exercice : Analyse du contenu d'une image
+===================================================
+
+#. Télécharger l'image mongo:3.6 en local
+#. Quelles sont les différentes étapes de constructions de l’image
+
+Comparez ces étapes avec le contenu du Dockerfile utilsé pour builder cette image.
+
+#. Inspectez l’image
+#. En utilisant la notation Go template, listez les ports exposés
+#. Exportez l’image mongo:3.6 dans un tar
+
+  * Extrayez le contenu de cette archive avec la commande tar -xvf, qu’observez-vous ?
+  * Extrayez le contenu d'une des layers, qu’observez-vous ?
+
+
+#. Supprimez l’image mongo:3.6
+

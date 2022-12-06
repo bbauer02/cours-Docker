@@ -1,0 +1,124 @@
+= aDocument
+
+
+== Qu'est-ce qu'un aDocument ?
+
+Un aDocument peut être vu comme un container qui contient des fichiers et des ressources pour un cours.
+
+=== Structure d'un aDocument
+
+A venir
+//todo : ici la structure du aDocument explicité
+
+[IMPORTANT]
+====
+Une ressource aDocument doit être déployée dans un SPOT. Il faut lire attentivement la documentation du projet https://gitlab.com/gemkod/trackadoc.git pour comprendre et bien mettre en place ce SPOT.
+====
+
+== Création d'un nouveau aDocument
+
+Il faut déployer ce projet via la commande suivante dans un SPOT (peut importe la structure des dossiers du moment qu'il y a un SPOT qui contient un projet `trackadoc` :
+
+[source%linenums,shell]
+----
+git clone git@gitlab.com:gemkod/document.git nomDuDossierQuiVaContenirLeCours
+----
+Ou si vous utilisez HTTPS :
+[source%linenums,shell]
+----
+git clone https://gitlab.com/gemkod/document.git nomDuDossierQuiVaContenirLeCours
+
+----
+
+Ensuite, il faut se placer dans le répertoire du nouveau cours et installer les éventuelles dépendances :
+
+[source%linenums,shell]
+----
+npm install
+----
+
+Et enfin, il faut lancer l'application qui va se charger du suivi du document
+
+[source%linenums,shell]
+----
+npm run start
+----
+
+[NOTE]
+====
+Si le projet est un nouveau aDocument, il va être automatiquement initialisé.
+====
+
+== Synchroniser une ressource aDocument sur un serveur git
+
+Pour synchroniser un aDocument avec un serveur git (gitlab ou github), il suffit d'indiquer l'url d'un nouveau dépôt dans le fichier `config/attributes` comme valeur de l'attribut `_git_remote_https`
+
+[source,asciidoc]
+----
+:_git_remote_https: https://gitlab.com/username/nomDuDepot.git
+----
+
+Une fois l'url distante spécifiée, le dépôt sera mis à jour après chaque versionnement de façon automatique.
+
+[IMPORTANT]
+====
+L'accès au dépôt se faisant avec HTTPS, il faut avoir un gestionnaire d'accès sécurisé.
+Je conseille l'utilisation de l'outil https://github.com/GitCredentialManager/git-credential-manager[git-credential-manager].
+Son avantage est qu'il permet d'éviter d'utiliser la connexion SSH sans avoir à saisir à chaque fois un nom d'utilisateur et un mot de passe.
+====
+
+[IMPORTANT]
+====
+L'application fait un push de toutes les branches dont la branche `main`.
+Cette dernière doit être déprotégée sur le serveur distant sans quoi le push échouera.
+====
+
+== Cloner une ressource aDocument
+
+Si vous souhaitez récupérer un cours aDocument depuis un dépôt d'un serveur git, il faut cloner ce dépôt avec l'option `--mirror`.
+Effectivement, il est indispensable de récupérer les différentes versions ainsi que les tags du projet.
+
+Voici la démarche à suivre scrupuleusement :
+
+Ouvrir une console à l'endroit où vous souhaitez cloner le projet :
+[source%linenums,shell]
+----
+# <1>
+git clone --mirror git@gitlab.com:gemkod/document.git nomDuCours/.git 
+
+git clone --mirror https://gitlab.com/gemkod/document.git nomDuCours/.git
+
+----
+<1> Il est impératif de préciser le nom du répertoire `.git` car le clone se fait sans le répertoire de travail (du fait de l'option `--mirror`)
+
+[CAUTION]
+====
+Le dépôt a été déployé comme un dépôt nu (il n'y a pas de répertoire de travail, on ne voit pas les fichiers de code).
+Mais nous avons bien toutes les branches (`git branch` et tous les tags `git tag`)
+====
+
+Il faut indiquer que le dépôt n'est pas un dépôt "nu" et qu'il doit être possible de travailler avec un répertoire de travail.
+
+Rentrez dans le répertoire qui vient d'être créé.
+
+[source%linenums,shell]
+----
+git config --bool core.bare false
+----
+
+Et enfin il faut se placer sur la branche qui nous intéresse :
+[source%linenums,shell]
+----
+git checkout nomDeLaBranche
+----
+
+[NOTE]
+====
+La commande `git clone` récupère automatiquement tous les tags annotés.
+====
+
+== Mettre à jour le dépôt distant
+
+Le dépôt distant est mis à jour automatiquement à chaque versionnement du aDocument dès lors que l'attribut `_git_remote_https` du fichier `config/attributes.adoc` est associé à l'url de ce dépôt.
+
+test 22

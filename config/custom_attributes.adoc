@@ -1,0 +1,11 @@
+//Dans ce fichier, placez tous les attributs personnalisés que vous souhaitez utiliser dans les sections
+//un attribut est utilisé en plaçant son nom entre accolades simples depuis le document qui l'appelle.
+//Attention à ne pas utiliser un attribut qui est déclaré dans le fichier attributes.adoc car il serait écrasé.
+
+//Exemples d'attributs (un nom d'attribut est encadré par le caractère deux points (:). Il doit y avoir un espace entre la valeur de l'attribut et son nom.
+//:node-version: 16.14.2
+//:url_reference: http://mon-site.fr/ressources
+//:schmilblick: oeuf de poule
+
+
+

@@ -1,0 +1,4 @@
+//le doctype est obligatoire si l'on définit un titre de niveau 0 ce que l'on veut systématiquement
+:doctype: book
+
+include::attributes.adoc[]
