@@ -772,7 +772,7 @@ http://localhost:5001 Si vous avez lancé cette application sur un autre
 hôte que votre machine, vous aurez accès à cette interface à l'adresse
 http://HOST:5001
 
-image:../images/image118.png[image]
+image:../images/image118.png[]
 
 === 8.6.10 Scaling du service worker
 
@@ -810,10 +810,12 @@ $ docker-compose ps
   compose_worker_2      dotnet Worker.dll                Up
 ----
 
-*Notes:* il n’est pas possible de scaler les services `vote-ui` et
+[NOTE]
+====
+il n’est pas possible de scaler les services `vote-ui` et
 `result-ui` car ils spécifient tous les 2 un port, plusieurs containers
 ne peuvent pas utiliser le même port de la machine hôte
-
+====
 [source,]
 ----
 $ docker-compose up -d --scale vote-ui=3
@@ -821,7 +823,7 @@ $ docker-compose up -d --scale vote-ui=3
 ERROR: for vote-ui  Cannot start service vote-ui: driver failed programming external connectivity on endpoint compose_vote-ui_2 (6274094570a329e3a4d9bdcdf4d31b7e3a8e3e7e78d3cc362ad56e14341913da): Bind for 0.0.0.0:5000 failed: port is already allocated
 ----
 
-=== 8.6.11 Suppression de l’application
+=== Suppression de l’application
 
 Avec la commande suivante, stoppez l’application. Cette commande
 supprime l’ensemble des éléments créés précédemment à l'exception des
@@ -861,8 +863,8 @@ déployer cette application sur un environnement de production, il
 faudrait effectuer des modifications dans le fichier *docker-compose*,
 par exemple:
 
-* utilisation d’images pour les services
-* ajout de service supplémentaires (aggrégateur de logs, terminaison
+* Utilisation d’images pour les services
+* Ajout de service supplémentaire (aggrégateur de logs, terminaison
 ssl, ...)
-* contraintes de déploiement
+* Contraintes de déploiement
 * ...
