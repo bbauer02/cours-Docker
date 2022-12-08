@@ -1,3 +1,12 @@
-== 5.0 Registry
+ifndef::_main_loaded[]
+include::../config/load_attributes.adoc[]
+endif::_main_loaded[]
+//titre de la section
+[[docker_registry]]
+= Registry
+ifndef::_main_loaded[]
+include::../config/header_attributes.adoc[]
+endif::_main_loaded[]
+
 
 En cours de rédaction ...

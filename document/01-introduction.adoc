@@ -8,6 +8,7 @@ ifndef::_main_loaded[]
 include::../config/header_attributes.adoc[]
 endif::_main_loaded[]
 
+
 Ce cours est découpé en différents chapitres et permet un apprentissage
 progressif des différents concepts Docker et de leur mise en pratique.
 On commencera par donner quelques exemples de ce qu’il est possible de

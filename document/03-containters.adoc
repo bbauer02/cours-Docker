@@ -55,7 +55,7 @@ Cet exemple est simple, mais il met en avant le mécanisme sous-adjacent.
 **Activité {counter:activiy} **:
 Expérimentez la commande sur votre machine :
 
-[source, javascript]
+[source, ]
 ----
 docker container run hello-world
 ----
@@ -98,7 +98,7 @@ Nous allons utiliser l’image *Ubuntu* qui contient les binaires et les bibliot
 
 Le processus du *conteneur* dans le *système de fichier* qui est amené par le système *Ubuntu*.
 
-[source, javascript]
+[source, ]
 ----
   docker container run -t -i ubuntu bash
 ----
@@ -133,7 +133,7 @@ Nous aurions pu faire la même chose en utilisant une autre image que celle d’
 
 Lançons par exemple un conteneur basé sur la distribution *Linux Alpine* qui est distribution légère et sécurisée.
 
-[source, javascript]
+[source, ]
 ----
   docker container run -t -i alpine
 ----
@@ -159,7 +159,7 @@ Par exemple nous pouvons lancer un conteneur basé sur l’image `nginx`, un *se
 ====
 
 Le conteneur est lancé et occupe notre console. Nous n'avons plus la main.
-[source, javascript]
+[source, ]
 ----
   docker container run nginx
 ----
@@ -172,7 +172,7 @@ image::../images/image14.png[]
 ====
 Le conteneur est lancé et nous récupérons la main sur la console.
 
-[source, javascript]
+[source, ]
 ----
 docker container run -d nginx
 ----
@@ -204,7 +204,7 @@ Par défaut, *NGINX* est un processus qui se lance sur le *port 80* dans le cont
 Si nous souhaitons accéder à notre conteneur depuis *un navigateur de la machine hôte* sur le *port 8080* de la machine hôte,
 nous lançerons le conteneur *nginx* avec la commande suivante :
 
-[source, javascript]
+[source, ]
 ----
 docker container run -d -p 8080:80 nginx
 ----
@@ -234,14 +234,14 @@ C’est le cas lors du développement d’une *application web*.
 Nos *fichiers sources* sont sur une *machine locale*, et dans *un conteneur,* nous avons un serveur *WEB* avec *NGINX* par exemple.
 Nous allons alors monter le dossier `www` local dans le *conteneur*.
 
-[source, javascript]
+[source, ]
 ----
   docker container run -v $PWD/www:/usr/share/nginx/html -d -p 80:80 nginx
 ----
 
 ou
 
-[source, javascript]
+[source, ]
 ----
 docker container run –mount type=bind,src=$PWD/www,dst=/usr/share/nginx/html -d -p 80:80 nginx
 ----
@@ -268,7 +268,7 @@ image::../images/image19.png[]
 
 Créons donc un simple conteneur : avec l’image d' *Alpine*.
 
-[source, javascript]
+[source, ]
 ----
   docker container run --rm -it --name admin -v /var/run/docker.sock:/var/run/docker.sock alpine
 ----
@@ -284,7 +284,7 @@ Installons *CURL* :
 
 Nous allons lancer une requête *http POST* sur le `Docker DAEMON` :
 
-[source, javascript]
+[source, ]
 ----
     curl -X POST –unix-socket /var/run/docker.sock -d '{"Image":"nginx:1.12.2"}' -H 'Content-Type: application/json' http://localhost/containers/create
 ----
@@ -297,7 +297,7 @@ Sous quel format sont envoyés les instructions de configuration de l’image *D
 
 Pour lancer le conteneur depuis le conteneur *ADMIN* :
 
-[source, javascript]
+[source, ]
 ----
 
   curl -XPOST –unix-socket /var/run/docker.sock http://localhost/containers/6b24...283b/start
@@ -321,12 +321,12 @@ Puis nous écouterons les actions demandées sur le *Docker Daemon*.
 *Même ceux provenant d’autre conteneur*
 ====
 
-[source, javascript]
+[source, ]
 ----
   docker container run –name admin -ti -v /var/run/docker.sock:/var/run/docker.sock alpine
 ----
 
-[source, javascript]
+[source, ]
 ----
   curl –unix-socket /var/run/docker.sock http://localhost/events
 
@@ -345,7 +345,7 @@ Nous pouvons toutefois imposer des limites à un conteneur.
 
 Lançons un conteneur avec l’image `estesp/hogit` qui a pour objectif de consommer de la ram.
 
-[source, javascript]
+[source, ]
 ----
 docker container run --memory 32m estesp/hogit
 ----
@@ -357,7 +357,7 @@ Nous pouvons limiter l’utilisation du *CPU* également.
 
 Lançons un conteneur avec l’image `progrium/stress` qui va se charger de stresser les cœurs du *CPU*.
 
-[source, javascript]
+[source, ]
 ----
 docker container run -it –rm progrium/stress -–cpu 4
 ----
@@ -367,7 +367,7 @@ Ici les *4* cœurs du *CPU* serons utilisés car nous n’avons pas imposé de l
 
 Maintenant lançons la même commande avec le flag `--cpus 0.5` pour limiter l’utilisation du *CPU à la moitié d’un cœur*. (*12%* d’utilisation)
 
-[source, javascript]
+[source, ]
 ----
 docker container run -it --rm progrium/stress -–cpu 4 –-cpus 0.5
 ----
@@ -393,7 +393,7 @@ Il y a plusieurs façons de le définir :
 
 Lançons un conteneur basé sur l’image *Alpine* et exécutons l'instruction `sleep 10000`.
 
-[source, javascript]
+[source, ]
 ----
 docker container run -d alpine sleep 10000
 ----
@@ -404,7 +404,7 @@ Nous allons vérifier le `owner` du processus depuis la machine hôte :
 
 *Pour LINUX :*
 
-[source, javascript]
+[source, ]
 ----
  ps aux | grep sleep
 ----
@@ -418,7 +418,7 @@ via la commande `top`.
 
 Récupérez l'identifiant ou le nom du conteneurs obtenue avec la commande précédente puis :
 
-[source, javascript]
+[source, ]
 ----
 docker container top <identifiant ou nom du container>
 ----
@@ -449,7 +449,7 @@ Nous verrons par la suite comme il est possible de configurer le `owner` d'un pr
 
 ### Les commandes de base avec Docker
 
-[source, javascript]
+[source, ]
 ----
 docker container <command>
 ----
@@ -489,7 +489,7 @@ image::../images/image20.png[]
 
 Pour lister tous les conteneurs actifs et stoppés :
 
-[source, javascript]
+[source, ]
 ----
 docker container ls -a
 ----

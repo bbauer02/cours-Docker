@@ -978,7 +978,7 @@ docker image inspect ping:1.0
 
 Parmi ces éléments, on a donc les identifiants de chaque layer :
 
-[source,JSON]
+[source,]
 ----
 "rootfs": {
   "type": "layers",
