@@ -32,7 +32,8 @@ include::custom_attributes.adoc[]
 
 //chemin vers l'image de couverture (il faut indiquer un chemin relatif à partir du répertoire "config" jusqu'à l'image)
 //:_cover_image: ../images/bg-document.png
-:_cover_image:
+
+:_cover_image: ../images/cover.png
 
 
 // ***************************************************************
