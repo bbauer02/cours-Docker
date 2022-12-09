@@ -704,11 +704,10 @@ docker container stop ping www
 
 faites ensuite : `docker container ls`
 
-____
-Que constatez vous ? Pourquoi ?
-____
 
-Même question avec : `docker container ls -a`
+* Que constatez-vous ? Pourquoi ?
+
+* Même question avec : `docker container ls -a`
 
 Supprimons maintenant les containers créés :
 
@@ -716,7 +715,7 @@ Supprimons maintenant les containers créés :
 
 == Exercices :
 
-===Exercice 1 : Hello From Alpine
+=== Exercice 1 : Hello From Alpine
 
 Le but de ce premier exercice est de lancer des containers basés sur
 l'image *alpine*.

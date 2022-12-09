@@ -1162,8 +1162,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o http .
 CMD ["./http"]
 ----
 
-Note: dans ce Dockerfile, l'image officielle golang est utilisée comme
+[NOTE]
+====
+Dans ce Dockerfile, l'image officielle golang est utilisée comme
 image de base, le fichier source http.go est copié puis compilé.
+====
 
 Vous pouvez ensuite builder l'image et la nommer whoami:1.0:.
 

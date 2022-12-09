@@ -8,7 +8,8 @@ ifndef::_main_loaded[]
 include::../config/header_attributes.adoc[]
 endif::_main_loaded[]
 
-Dans ce chapitre nous verrons comment une application peut persister ses
+
+Dans ce chapitre, nous verrons comment une application peut persister ses
 données au sein d'un container.
 
 == Volume
