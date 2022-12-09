@@ -1,0 +1,141 @@
+== Serveur HTTP avec Docker
+
+image:../images/image76.png[image]
+
+Nous allons vous guider à chaque étape de la mise en place d’un serveur
+*WEB APACHE* sous *DOCKER*.
+
+Une équipe d’*ESPORT* : *NECROMANCERS*, a confié la création de son site
+web à une agence de communication dont la maquette HTML est disponible
+dans le fichier `esport.zip`.
+
+* *Créez* un dossier « *docker* » dans « *mes documents* » et créez un
+autre dossier à l’intérieur nommé « *www* ».
+* *Téléchargez* ce fichier sur votre disque dur, et *dézippez*
+l’archive. Vous obtenez un dossier qui se nomme : « *esport* ».
+* *Déplacez* le dossier « *esport* » dans le dossier.
+
+Votre première mission sera de mettre en place un serveur *WEB* sous
+*Apache* avec *Docker*.
+
+* Nous avons plusieurs possibilités qui s’offrent à nous :
+** Soit nous téléchargeons une image d’une distribution Linux puis nous
+installons et configurons nous-même Apache.
+** Soit nous trouvons une image contenant déjà Apache.
+
+La force de Docker est de posséder une sorte de « *AppStore* », un «
+*Hub* » appelé le « *dockerHub* » qui regroupe des images officielles et
+non officielles utilisables. Recherchons donc une image correspondant à
+notre besoin : https://hub.docker.com/[Docker Hub]
+
+image:../images/image77.png[image]
+
+Examinons les distributions *Linux* qui accompagnent *Apache* en
+cliquant dessus. Nous constatons qu'*Alpine* est la distribution par
+défaut. C'est un bon choix, car c’est une distribution *Linux Légère*.
+
+image:../images/image78.png[image]
+
+En parcourant la page dédiée de l'image
+https://hub.docker.com/_/httpd[Apache] nous trouvons le sous-titre «
+*How to use this image* » qui nous permettra de comprendre comment
+utiliser ce container.
+
+Nous l'installerons grâce au nom de l’image : `httpd`.
+
+Nous allons avoir besoin de dire au container *Apache* où trouver les
+fichiers de la maquette pour les interpréter. Nous savons qu’ils sont
+stockés sur notre machine ,appelée la *machine hôte*, au chemin suivant
+dans mon cas : `C:\Users\baptiste\Documents\docker\td\www\esport`. Le
+container Apache, (_lire la documentation_) est configuré pour aller
+lire les fichiers Web dans son dossier interne :
+`/usr/local/apache2/htdocs/`.
+
+Il faut donc *monter* notre répertoire de la *machine hôte* dans le
+dossier *htdocs* de Apache2. Cela est possible grâce à l’option :
+`-v <HOST_PATH>:<CONTAINER_PATH>`
+
+Apache, le serveur Web, écoute par défaut sur le *port 80* du container.
+Il faut donc lier un port de la machine hôte avec le port 80 du
+container. Nous décidons arbitrairement de publier le *port 80 du
+container* sur le *port 2000 de notre machine hôte*. Grâce à l’option
+`-p HOST_PORT:CONTAINER_PORT`.
+
+Une fois que notre container est lancé, nous voulons continuer à avoir
+la main sur notre terminal. Par conséquent il faudra donc utiliser
+l’option `-d` pour lancer le container en *background* (tâche de fond).
+
+Nous nommerons ce container avec l’option : `--name serveur_http`.
+
+Au final, la commande pour installer et lancer notre container sera :
+
+[source,]
+----
+docker container run -d --name serveur_http -v $PWD/Documents/docker/td/www/esport:/usr/local/apache2/htdocs -p 2000:80 httpd
+----
+
+image:../images/image79.png[image]
+
+Pour tester, ouvrez votre navigateur et saisissez l’adresse :
+http://localhost:2000/
+
+image:../images/image80.png[image]
+
+Nous allons ouvrir un *shell* dans le container pour consulter le
+contenu du dossier : `/usr/local/apache2/htdocs`
+
+Tapez la commande :
+
+[source,]
+----
+docker container exec -ti serveur_http sh
+----
+
+`docker container exec` permet de donner l'ordre à notre container de
+lancer une commande et l'option `-ti` permet de garder la main sur le
+*shell*.
+
+À partir du shell, plaçons-nous donc dans le répertoire `htdocs`. ..
+code-block:
+
+....
+cd /usr/local/apache2/htdocs
+....
+
+et listons les fichiers le contenant :
+
+[source,]
+----
+ls
+----
+
+image:../images/image81.png[image]
+
+Nous voyons que le dossier *HTDOCS* de notre container contient les
+fichiers de notre application provenant de notre dossier *esport*.
+
+Avec un éditeur de code comme *Visual Studio Code*, ouvrez le fichier
+`/www/esport/index.html` à partir de la machine hôte.
+
+Ajoutez le code suivant entre les lignes 250 et 251 et actualisé le
+navigateur :
+
+[source,html]
+----
+<h4 class="text-white landing-title">mode dev</h4>
+----
+
+image:../images/image82.png[image]
+
+[NOTE]
+.Note
+====
+Nous constatons que les fichiers de notre application ne sont pas
+réellement dans le container. Nous l'avons prouvé en modifiant le
+fichier à partir de la machine hôte et en observant que la modification
+a été prise en compte par le navigateur Nous n’avons créé qu’un *lien
+symbolique* de nos fichiers locaux dans le container.
+====
+
+*Notre site, est accessible !!! Nous avons rempli notre première mission !*
+
