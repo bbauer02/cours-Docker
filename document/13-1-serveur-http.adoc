@@ -1,12 +1,4 @@
-ifndef::_main_loaded[]
-include::../config/load_attributes.adoc[]
-endif::_main_loaded[]
-//titre de la section
-[[docker_http_server]]
-= Serveur HTTP avec Docker
-ifndef::_main_loaded[]
-include::../config/header_attributes.adoc[]
-endif::_main_loaded[]
+== Serveur HTTP avec Docker
 
 image:../images/image76.png[image]
 
@@ -145,5 +137,5 @@ a été prise en compte par le navigateur Nous n’avons créé qu’un *lien
 symbolique* de nos fichiers locaux dans le container.
 ====
 
-*Notre site, est accessible !!! Nous avons rempli notre première mission
-!*
+*Notre site, est accessible !!! Nous avons rempli notre première mission !*
+

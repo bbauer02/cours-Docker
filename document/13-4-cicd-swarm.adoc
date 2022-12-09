@@ -1,12 +1,5 @@
-ifndef::_main_loaded[]
-include::../config/load_attributes.adoc[]
-endif::_main_loaded[]
-//titre de la section
-[[cicd_swarm]]
-= CICD dans un Swarm, avec GitLab et Portainer
-ifndef::_main_loaded[]
-include::../config/header_attributes.adoc[]
-endif::_main_loaded[]
+== CICD dans un Swarm, avec GitLab et Portainer
+
 
 Dans cette activité, vous allez mettre en place un pipeline d'intégration continue / déploiement continu en utilisant différents composants : Docker Swarm, GitLab, Portainer
 
@@ -15,7 +8,7 @@ Dans cette activité, vous allez mettre en place un pipeline d'intégration cont
 Pour faire cet exercice dans sa totalité, il sera nécessaire de créer une VM accessible depuis internet (étape 4). Pour l'ensemble des cloud providers (Google Compute Engine, Amazon AWS, Packet, Rackspace, DigitalOcean, Scaleway, ...) l'instantiation de VMs est payante (peu cher pour un test de quelques heures cependant). Si vous ne souhaitez pas réaliser la manipulation jiusqu'au bout, n'hésitez pas à suivre cet exercice sans l'appliquer, l'essentiel étant de comprendre le flow global.
 ====
 
-== Les étapes
+=== Les étapes
 
 Vous allez suivre les différentes étapes ci-dessous :
 
@@ -31,7 +24,7 @@ Vous allez suivre les différentes étapes ci-dessous :
 
 ---
 
-== 1ère étape: Création d'un serveur web
+=== 1ère étape: Création d'un serveur web
 
 En utilisant le langage de votre choix, développez un serveur web simple ayant les caractéristiques suivantes:
 - écoute sur le port 8000
@@ -50,13 +43,13 @@ vous pouvez utiliser l'un des templates ci-dessous, réalisé dans différents l
 - Java
 - .net core
 
-=== NodeJs
+==== NodeJs
 
-==== Installation
+===== Installation
 
 Suivez les instructions suivantes pour installer l'interpréteur NodeJS: [https://nodejs.org/](https://nodejs.org/)
 
-==== Code source
+===== Code source
 
 - index.js
 
@@ -91,7 +84,7 @@ app.listen(8000);
 
 
 
-==== Installation de expressjs
+===== Installation de expressjs
 
 ```
 $ npm install
@@ -112,14 +105,14 @@ Hi!
 
 ---
 
-=== Python
+==== Python
 
-==== Installation
+===== Installation
 
-Suivez les instructions suivantes pour installer l'interpréteur Python: 
+Suivez les instructions suivantes pour installer l'interpréteur Python:
 https://www.python.org/downloads/
 
-==== Code source
+===== Code source
 
 - app.py
 
@@ -144,19 +137,19 @@ if __name__ == "__main__":
 Flask==2.0.2
 ```
 
-==== Installation des dépendances
+===== Installation des dépendances
 
 ```
 $ pip install -r requirements.txt
 ```
 
-==== Lancement du serveur
+===== Lancement du serveur
 
 ```
 $ python app.py
 ```
 
-==== Test
+===== Test
 
 ```
 $ curl localhost:8000
@@ -165,15 +158,15 @@ Hi!
 
 
 
-=== Ruby
+==== Ruby
 
-==== Installation
+===== Installation
 
 Suivez les instructions suivantes pour installer l'interpréteur Ruby:
 
 https://www.ruby-lang.org/fr/documentation/installation/
 
-==== Code source
+===== Code source
 
 - app.rb
 
@@ -196,19 +189,19 @@ gem "sinatra"
 ----
 
 
-==== Installation des dépendances
+===== Installation des dépendances
 
 ```
 $ bundle install
 ```
 
-==== Lancement du serveur
+===== Lancement du serveur
 
 ```
 $ ruby app.rb -s Puma
 ```
 
-==== Test
+===== Test
 
 ```
 $ curl localhost:8000
@@ -216,14 +209,14 @@ Hi!
 ```
 
 
-=== Go
+==== Go
 
-==== Installation
+===== Installation
 
 Suivez les instructions suivantes pour installer le compilateur GO:
 https://golang.org/doc/install
 
-==== Code source
+===== Code source
 
 - main.go
 
@@ -246,13 +239,13 @@ func main() {
 }
 ----
 
-==== Lancement du serveur
+===== Lancement du serveur
 
 ```
 $ go run main.go
 ```
 
-==== Test
+===== Test
 
 ```
 $ curl localhost:8000
@@ -261,9 +254,9 @@ Hi!
 
 ---
 
-=== Java / Spring
+==== Java / Spring
 
-==== Installation
+===== Installation
 
 Suivez les instructions suivantes pour installer le compilateur Java: https://java.com](https://java.com
 
@@ -271,28 +264,28 @@ L'application de test est générée depuis [](https://start.spring.io/) en util
 
 ![Spring generator](./images/spring-generator.png)
 
-==== Packaging de l'application
+===== Packaging de l'application
 
 ```
 $ ./mvnw package
 ```
 
-==== Lancement du serveur
+===== Lancement du serveur
 
 ```
 $ java -jar target/demo-0.1.jar
 ```
 
-==== Test
+===== Test
 
 ```
 $ curl http://localhost:8080/
 hello World
 ```
 
-=== DotNetCore
+==== DotNetCore
 
-==== Création du projet
+===== Création du projet
 
 Générez un quelette de projet DotNetCore avec la commande suivante:
 
@@ -300,7 +293,7 @@ Générez un quelette de projet DotNetCore avec la commande suivante:
 $ dotnet new webapi -o webapi
 ```
 
-==== Compilation
+===== Compilation
 
 ```
 $ cd webapi
@@ -308,13 +301,13 @@ $ dotnet restore
 $ dotnet publish -c Release -o out
 ```
 
-==== Lancement du serveur
+===== Lancement du serveur
 
 ```
 $ dotnet out/webapi.dll
 ```
 
-==== Test
+===== Test
 
 ```
 $ curl https://localhost:5000/api/values
@@ -325,9 +318,9 @@ Dans la partie suivante, vous allez packager l'application dans une image Docker
 
 ---
 
-== 2ème étape : Création d'une image Docker
+=== 2ème étape : Création d'une image Docker
 
-=== Ajout d'un fichier Dockerfile
+==== Ajout d'un fichier Dockerfile
 
 Ajoutez un Dockerfile à la racine du répertoire contenant le code source du serveur web. Vous vous servirez ensuite de ce Dockerfile pour créer une image contenant le code de votre application et l'ensemble des dépendences qui sont nécessaires pour la faire tourner.
 
@@ -335,7 +328,7 @@ Vous trouverez ci-dessous des exemples de Dockerfile pour un serveur web écrit 
 
 Important: essayez tout d'abord d'écrire votre propre version du Dockerfile avant d'utiliser l'un de ceux ci-dessous :)
 
-==== Exemple de Dockerfile pour un serveur web écrit en Java
+===== Exemple de Dockerfile pour un serveur web écrit en Java
 
 ```
 FROM openjdk:8-jdk
@@ -349,7 +342,7 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
 EXPOSE 8000
 ```
 
-==== Exemple de Dockerfile pour un serveur web écrit en Python
+===== Exemple de Dockerfile pour un serveur web écrit en Python
 
 ```
 FROM python:3
@@ -360,7 +353,7 @@ EXPOSE 8000
 CMD python /app/app.py
 ```
 
-==== Exemple de Dockerfile pour un serveur web écrit ern Node.Js
+===== Exemple de Dockerfile pour un serveur web écrit ern Node.Js
 
 ```
 FROM node:12-alpine
@@ -371,7 +364,7 @@ EXPOSE 8000
 CMD ["npm", "start"]
 ```
 
-==== Exemple de Dockerfile pour un serveur web écrit en Go
+===== Exemple de Dockerfile pour un serveur web écrit en Go
 
 ```
 FROM golang:1.12-alpine as build
@@ -384,7 +377,7 @@ COPY --from=build /app/main .
 CMD ["./main"]
 ```
 
-=== Construction de l'image
+==== Construction de l'image
 
 Une fois que vous avez créé votre Dockerfile, construisez une image, nommé *api* en utilisant la commande suivante:
 
@@ -392,7 +385,7 @@ Une fois que vous avez créé votre Dockerfile, construisez une image, nommé *a
 $ docker build -t api .
 ```
 
-=== Lancement d'un container
+==== Lancement d'un container
 
 Vérifiez à présent que l'application tourne correctement lorsqu'elle est lancée dans un container (en publiant le port 8000).
 
@@ -410,9 +403,9 @@ Vous pouvez ensuite stopper le container et passer à l'étape suivante.
 
 ---
 
-== 3ème étape: repository GitLab
+=== 3ème étape: repository GitLab
 
-=== 1. GitLab.com
+==== GitLab.com
 
 Créez un compte depuis https://gitlab.com, ou bien utilisez votre propre compte si vous en avez déjà un.
 
@@ -420,7 +413,7 @@ image::../images/image148.png[]
 
 Important: assurez-vous de copier votre clé publique ssh dans la configuration de votre compte GitLab. Dans la suite, cela permettra d'uploader le  code de votre serveur sans avoir à renseigner votre login et mot de passe à chaque fois.
 
-=== 2. Création d'un projet
+==== Création d'un projet
 
 Une fois que vous êtes connecté sur https://gitlab.com, créez un nouveau projet en lui donnant le nom que vous souhaitez.
 
@@ -428,7 +421,7 @@ Assurez vous de sélectionner *Public* dans la rubrique *Visibility Level*.
 
 image::../images/image149.png[]
 
-=== 3. Envoi du code de l'application
+==== Envoi du code de l'application
 
 Suivez les instructions détaillées dans la section *Push an existing folder* afin d'envoyer le code de votre application dans le projet que vous venez de créer.
 
@@ -436,9 +429,9 @@ Dans l'étape suivante, vous allez mettre en place un cluster Docker Swarm dans 
 
 ---
 
-== 4ème étape: Cluster Swarm
+=== 4ème étape: Cluster Swarm
 
-=== Création d'un hôte Docker
+==== Création d'un hôte Docker
 
 Vous aurez besoin dans cette partie d'une machine virtuelle accessible depuis Internet. Pour quelques euros vous pourrez par exemple en créer une sur un cloud provider tel que DigitalOcean, OVH, Scaleway, Google Compute Plateform, Amazon AWS, ...
 
@@ -448,7 +441,7 @@ Une fois la VM mise en place, connectez vous sur celle-ci en ssh et installer Do
 $ curl https://get.docker.com | sh
 ```
 
-=== Initialisation d'un cluster Swarm
+==== Initialisation d'un cluster Swarm
 
 Initialisez ensuite un Docker Swarm avec la commande suivante:
 
@@ -458,7 +451,7 @@ $ docker swarm init
 
 > Note: si vous obtenez une erreur similaire à: "Error response from daemon: could not choose an IP address to advertise since this system has multiple addresses on interface eth0 (178.62.15.73 and 10.16.0.7) - specify one with --advertise-addr", relancez la commande d'Initialisation en donnant l'adresse IP externe de la VM
 
-=== Installation de Portainer
+==== Installation de Portainer
 
 Toujours depuis le shell précédent, installez l'outils Portainer en tant que Docker Stack sur le Swarm. Portainer vous permettra de gérer votre Swarm avec une interface web très intuitive.
 
@@ -485,9 +478,9 @@ Dans l'étape suivante, vous allez mettre en place un pipeline de CICD
 
 
 
-== 5ème (et dernière) étape: CICD
+=== 5ème (et dernière) étape: CICD
 
-=== Utilisation de GitLab CI
+==== Utilisation de GitLab CI
 
 A la racine du répertoire contenant les sources de votre projet, créez un fichier `.gitlab-ci.yml` contenant les instructions suivantes:
 
@@ -525,7 +518,7 @@ Une fois celui-ci terminé, allez dans le menu *Packages -> Container Registry* 
 image::../images/153.png[]
 ![GitLab pipeline](./images/gitlab_registry_1.png)
 
-=== Ajout d'un test d'intégration
+==== Ajout d'un test d'intégration
 
 Dans le fichier `.gitlab-ci.yml`, ajouter une entrée *integration* sous la clé *stage*.
 
@@ -567,7 +560,7 @@ image::../images/154.png[]
 
 Vérifiez le contenu des logs de l'étape d'intégration, cela vous permettra de corrigez le code. Vous pourrez ensuite commiter ce changement puis l'envoyer dans GitLab. Assurez-vous que le nouveau pipeline déclenché se déroule cette fois-ci sans erreur.
 
-=== Creation d'un service
+==== Creation d'un service
 
 Vous allez à présent déployer votre application en tant que Service Docker. Utilisez pour cela la commande suivante en remplaçant:
 - GITLAB_USER par votre identifiant GitLab
@@ -582,7 +575,7 @@ $ docker service create \
 
 Note: le port 8000 du service est publié sur le port 8080 sur le node du cluster Swarm car le port 8000 est déjà utilisé par Portainer.
 
-=== Webhook Portainer
+==== Webhook Portainer
 
 Depuis l'interface de Portainer, assurez-vous que le Service est actif:
 
@@ -596,7 +589,7 @@ Copiez cette URL et utilisez cette valeur pour la variable *PORTAINER_WEBHOOK* q
 
 image::../images/157.png[]
 
-=== Déploiement automatique
+==== Déploiement automatique
 
 L'étape suivante est d'ajouter une phase de déploiement, nommée *deploy* dans le fichier *.gitlab-ci.yml*. Ajoutez cette nouvelle entrée dans la liste *stages*:
 
@@ -627,4 +620,5 @@ Vérifiez enfin que la nouvelle version de votre application a été correctemen
 == En résumé
 
 Cet exercice détaille les étapes que l'on peut suivre pour mettre en place un pipeline simple d'intégration continue / déploiement continu (CI/CD). De nombreux éléments pourraient être ajoutés afin d'améliorer ce pipeline...
+
 

@@ -72,7 +72,7 @@ On peut imaginer avoir besoin de lancer plusieurs containers *MongoDB*
 avec des versions différentes. Cela peut être utile pour tester une
 différence de comportement entre deux versions par exemple.
 
-==Des Stacks complètes
+== Des Stacks complètes
 
 Une application fonctionne rarement seule et est souvent constituée d’un
 ensemble de services. Cet ensemble constitue une *Stack applicative*.

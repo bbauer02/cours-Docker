@@ -1,0 +1,15 @@
+ifndef::_main_loaded[]
+include::../config/load_attributes.adoc[]
+endif::_main_loaded[]
+//titre de la section
+[[mise_en_pratique]]
+= Mise en Pratique
+ifndef::_main_loaded[]
+include::../config/header_attributes.adoc[]
+endif::_main_loaded[]
+
+
+include::13-1-serveur-http.adoc[]
+include::13-2-serveur-http.adoc[]
+include::13-3-creation-dockerfile.adoc[]
+include::13-4-cicd-swarm.adoc[]
