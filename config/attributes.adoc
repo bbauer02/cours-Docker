@@ -14,26 +14,26 @@ include::custom_attributes.adoc[]
 
 //auteur du document (si plusieurs auteurs, séparer par un ; ). Pour ajouter une adresse mail, il faut l'encadrer des caractères < et >
 //:document_author: Emmanuel Ravrat <ieg.prof@gmail.com>
-:_document_author: Emmanuel Ravrat
+:_document_author: Baptiste Bauer
 
 //titre du document
-:_document_title: Certification : Expert informatique et systèmes d'information
+:_document_title: ESI - DOCKER
 
 //Si le document a des diagrammes, il faut indiquer la valeur 1 afin que le script qui génère le pdf utilise l'outil qui génère les diagrammes
 :_document_with_diagrams: 1
 
 //URL du dépôt distant. Pour gérer l'authentification en HTTPS, il faut utiliser GCM : https://github.com/GitCredentialManager/git-credential-manager. S'il y a plusieurs dépôts, ils doivent être séparés par un point virgule).
-:_git_remote_for_current_adocument: https://gitlab.com/gemkod/sujet_expert_esi.git
+:_git_remote_for_current_adocument: https://github.com/bbauer02/cours-Docker
 
 //URL du dépôt ouvert aux étudiants (ne seront publiés que le contenu du dossier shared. Pour gérer l'authentification en HTTPS, il faut utiliser GCM : https://github.com/GitCredentialManager/git-credential-manager. S'il y a plusieurs dépôts, les séparer par un ;
-:_git_remotes_for_students:
+:_git_remotes_for_students: https://github.com/bbauer02/3wa_docker.git
 
 //url menant vers le dépôt partagé aux étudiants (pour l'instant, ce n'est pas cohérent avec l'attribut _git_remotes_for_students car ce dernier peut accepter plusieurs valeurs.
 :_url_to_repo_for_students:
 
 //chemin vers l'image de couverture (il faut indiquer un chemin relatif à partir du répertoire "config" jusqu'à l'image)
 //:_cover_image: ../images/bg-document.png
-:_cover_image:
+:_cover_image: ../images/bg_docker.jpeg
 
 
 // ***************************************************************
