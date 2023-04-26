@@ -1,0 +1,180 @@
+= aDocument
+
+
+== Qu'est-ce qu'un aDocument ?
+
+Un aDocument peut être vu comme un container qui contient des fichiers et des ressources pour un cours.
+
+=== Structure d'un aDocument
+
+A venir
+//todo : ici la structure du aDocument explicité
+
+[IMPORTANT]
+====
+Une ressource aDocument doit être déployée dans un SPOT. Il faut lire attentivement la documentation du projet https://gitlab.com/gemkod/trackadoc.git pour comprendre et bien mettre en place ce SPOT.
+====
+
+== Création d'un nouveau aDocument
+
+Il faut déployer ce projet via la commande suivante dans un SPOT (peut importe la structure des dossiers du moment qu'il y a un SPOT qui contient un projet `trackadoc` :
+
+[source%linenums,shell]
+----
+git clone git@gitlab.com:gemkod/document.git nomDuDossierQuiVaContenirLeCours
+----
+Ou si vous utilisez HTTPS :
+[source%linenums,shell]
+----
+git clone https://gitlab.com/gemkod/document.git nomDuDossierQuiVaContenirLeCours
+
+----
+
+Ensuite, il faut se placer dans le répertoire du nouveau cours et installer les éventuelles dépendances :
+
+[source%linenums,shell]
+----
+npm install
+----
+
+Et enfin, il faut lancer l'application qui va se charger du suivi du document
+
+[source%linenums,shell]
+----
+npm run start
+----
+
+[NOTE]
+====
+Si le projet est un nouveau aDocument, il va être automatiquement initialisé.
+====
+
+== Synchroniser une ressource aDocument sur un serveur git
+
+Pour synchroniser un aDocument avec un serveur git (gitlab ou github), il suffit d'indiquer l'url d'un nouveau dépôt dans le fichier `config/attributes` comme valeur de l'attribut `_git_remote_https`
+
+[source,asciidoc]
+----
+:_git_remote_https: https://gitlab.com/username/nomDuDepot.git
+----
+
+Une fois l'url distante spécifiée, le dépôt sera mis à jour après chaque versionnement de façon automatique.
+
+[IMPORTANT]
+====
+L'accès au dépôt se faisant avec HTTPS, il faut avoir un gestionnaire d'accès sécurisé.
+Je conseille l'utilisation de l'outil https://github.com/GitCredentialManager/git-credential-manager[git-credential-manager].
+Son avantage est qu'il permet d'éviter d'utiliser la connexion SSH sans avoir à saisir à chaque fois un nom d'utilisateur et un mot de passe.
+====
+
+[IMPORTANT]
+====
+L'application fait un push de toutes les branches dont la branche `main`.
+Cette dernière doit être déprotégée sur le serveur distant sans quoi le push échouera.
+====
+
+== Cloner une ressource aDocument
+
+Si vous souhaitez récupérer un cours aDocument depuis un dépôt d'un serveur git, il faut cloner ce dépôt avec l'option `--mirror`.
+Effectivement, il est indispensable de récupérer les différentes versions ainsi que les tags du projet.
+
+Voici la démarche à suivre scrupuleusement :
+
+Ouvrir une console à l'endroit où vous souhaitez cloner le projet :
+[source%linenums,shell]
+----
+# <1>
+git clone --mirror git@gitlab.com:gemkod/document.git nomDuCours/.git 
+
+git clone --mirror https://gitlab.com/gemkod/document.git nomDuCours/.git
+
+----
+<1> Il est impératif de préciser le nom du répertoire `.git` car le clone se fait sans le répertoire de travail (du fait de l'option `--mirror`)
+
+[CAUTION]
+====
+Le dépôt a été déployé comme un dépôt nu (il n'y a pas de répertoire de travail, on ne voit pas les fichiers de code).
+Mais nous avons bien toutes les branches (`git branch` et tous les tags `git tag`)
+====
+
+Il faut indiquer que le dépôt n'est pas un dépôt "nu" et qu'il doit être possible de travailler avec un répertoire de travail.
+
+Rentrez dans le répertoire qui vient d'être créé.
+
+[source%linenums,shell]
+----
+git config --bool core.bare false
+----
+
+Et enfin il faut se placer sur la branche qui nous intéresse :
+[source%linenums,shell]
+----
+git checkout nomDeLaBranche
+----
+
+[NOTE]
+====
+La commande `git clone` récupère automatiquement tous les tags annotés.
+====
+
+== Mettre à jour le dépôt distant
+
+Le dépôt distant est mis à jour automatiquement à chaque versionnement du aDocument dès lors que l'attribut `_git_remote_https` du fichier `config/attributes.adoc` est associé à l'url de ce dépôt.
+
+test 22
+
+
+== A venir
+
+*  gérer l'accès au dossier des ressources via un attribut qui serait modifié au moment de la génération au format pdf
+
+* Dans la génération du fichier .gitignore du projet, ajouter en exclusion le dossier qui va contenir les cours générés en pdf. (je l'avais fait mais apparemment, j'ai du écraser cette fonctionnalité)
+* Possibilité de synchroniser son projet local avec le projet distant depuis le menu de l'application
+* (peut être) demander s'il faut synchroniser ou pas après chaque mise à jour (ou faire une entrée de menu qui synchronise le dépôt prof avec le dépot distant et une autre pour le dépôt étudiant)
+
+* Mettre un mécanisme de mise à jour du dossier trackadoc (et voir la prise en charge du fichier de configuration attributes si le dossier trackadoc repose dessus)
+* voir à mettre en place un mécanisme de mise à jour du fichier attributes tout en reprenant les valeurs de configuration du fichier avant mise à jour (il faut imaginer un système de mappage entre les anciens attributs et les nouveaux, peut être suelement pour les attributs qui changent)
+
+
+== A factoriser depuis un aDocument vers Trackadoc
+
+* déplacer le fichier de thème dans le dossier trackadoc afin de disposer d'un seul fichier pour tous les cours d'un SPOT et proposer d'étendre le fichier local
+* déplacer les fichier de configuration dans trackadoc lorsque cela est possible afin de faciliter les mises à jour
+* faire la même chose pour tous les attributs (et permettre leur modification au niveau local)
+
+== A faire 
+
+L'initialisation d'un aDocument doit permettre de récupérer le chemin courant du projet (par rapport au dossier trackaadoc) pour le stocker dans un attribut.
+Ainsi, lorsqu'il faudra redéployer le projet, il y aura moyen de le déplo
+
+=== L'initialisation d'un projet aDocument doit :
+
+. Lancer le programme depuis le dossier du projet
+* le programme doit détecter le répertoire / chemin dans lequel il est créé
+** le fichier `trackadoc/skeletton.adoc` doit être synchronisé avec le dépôt trackadoc (git pull)
+** ce chemin doit être écrit dans un fichier de centralisation au niveau de `trackadoc/skeletton.adoc` (*réfléchir à une structure de fichier qui permette de retrouver facilement un projet pour déploiement (peut être y intégrer les spots à partager en local avec les étudiants*) et pushé dans trackadoc
+* créer la structure du projet en fonction de la configuration de base définie dans le dossier trackadoc
+** Le script doit demander l'adresse du dépôt distant pour lequel synchroniser le projet (tout en indiquant que la branche main doit être déprotégée).
+** une fois le projet initialisé, il est synchronisé avec le dépôt distant
+
+Features :
+** Le script doit permettre de modifier l'adresse du dépôt à synchroniser (et ainsi mettre à jour le fichier trackadoc/urlRepo.adoc) [*avec ce système, il devient très facile de maintenir une hiérarchie de dossiers de cours même découpée comme 3wa, SIO, etc*]
+
+=== Le déploiement d'un projet existant
+
+[IMPORTANT]
+====
+Le lancement du programme depuis trackadoc doit conduire à la mise à jour automatique du fichier `trackadoc/skeletton.adoc` (voir si ce fichier n'utiliserait pas du json pour davantage de commodité et de rapidité)
+====
+
+. Le programme doit proposer (depuis trackadoc) de rechercher un projet dans le fichier `trackadoc/skeletton.adoc` et pour celui-ci, proposer de
+* s'il existe,
+** l'ouvrir dans l'explorateur
+** l'ouvrir avec l'éditeur (chemin à spécifier dans le fichier de conf sauf s'il est dans les variables d'environnement)
+** le mettre à jour
+* s'il n'existe pas
+** le déployer (on peut imaginer un système qui déploie tous les projets non déployés d'ailleurs)
+
+
+
+

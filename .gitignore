@@ -1,0 +1,30 @@
+#Le script qui gère le suivi des modifications du document se base sur le retour de la commande git status. Donc tout ce qui n'est pas ignoré est pris en compte par le script
+
+# les dossiers des ides classiques sont à ignorer
+.idea/
+.vs/
+node_modules/
+
+# Il ne faut pas suivre les fichiers html, pdf et js qui ne concerne par le document
+*.pdf
+*.html
+*.js
+!/boot.js
+!/*pdf
+
+# il ne faut pas suivre les dossiers de cache
+/**/**/cache/
+
+#tout ce qui contient la chaîne "_ignore_" doit être ignoré (dossier ou fichier)
+/**/*_ignore_*
+
+
+
+# On laisse la possibilité de suivre les éléments qui sont dans les assets (annexes au format pdf, des fichiers de code javascript, du html, etc
+!/assets/**/*.pdf
+!/assets/**/*.html
+!/assets/**/*.js
+
+
+
+

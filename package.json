@@ -1,0 +1,18 @@
+{
+  "name": "boot",
+  "version": "1.0.0",
+  "description": "script de publication des sources asciidoc au format pdf et html",
+  "main": "boot.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./boot.js"
+  },
+  "keywords": [
+    "asciidoc"
+  ],
+  "author": "Emmanuel Ravrat",
+  "license": "ISC",
+  "dependencies": {
+  }
+}

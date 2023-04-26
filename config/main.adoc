@@ -1,0 +1,25 @@
+//la présence de cet attribut permet de déterminer que le fichier main a été chargé.
+:_main_loaded:
+
+
+//chargement des attributs
+include::load_attributes.adoc[]
+
+= {_document_title}
+include::header_attributes.adoc[]
+
+//inclusion du fichier qui comprend les inclusions des différentes parties du document avec décalage des niveaux de section (afin de permettre chaque fichier inclus d'utiliser un niveau de titre h1
+:leveloffset: +1
+include::../{_folder_document}/{_file_index}[]
+:leveloffset: -1
+
+//Ajout des informations de version
+ifeval::[{_show_versions_information} != 0]
+
+== Informations de versions
+
+include::../{_folder_cache}/{_file_cache_versions_info}[]
+
+endif::[]
+
+include::index.adoc[]
