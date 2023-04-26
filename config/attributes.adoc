@@ -29,7 +29,7 @@ include::custom_attributes.adoc[]
 :_git_remotes_for_students: https://github.com/bbauer02/3wa_docker.git
 
 //url menant vers le dépôt partagé aux étudiants (pour l'instant, ce n'est pas cohérent avec l'attribut _git_remotes_for_students car ce dernier peut accepter plusieurs valeurs.
-:_url_to_repo_for_students:
+:_url_to_repo_for_students: https://github.com/bbauer02/3wa_docker.git
 
 //chemin vers l'image de couverture (il faut indiquer un chemin relatif à partir du répertoire "config" jusqu'à l'image)
 //:_cover_image: ../images/bg-document.png
